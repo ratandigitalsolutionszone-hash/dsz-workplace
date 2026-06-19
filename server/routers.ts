@@ -1,10 +1,12 @@
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
-import { publicProcedure, router } from "./_core/trpc";
+import { publicProcedure, router, protectedProcedure } from "./_core/trpc";
+import { z } from "zod";
+import * as db from "./db";
+import { TRPCError } from "@trpc/server";
 
 export const appRouter = router({
-    // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
   system: systemRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
@@ -17,12 +19,172 @@ export const appRouter = router({
     }),
   }),
 
-  // TODO: add feature routers here, e.g.
-  // todo: router({
-  //   list: protectedProcedure.query(({ ctx }) =>
-  //     db.getUserTodos(ctx.user.id)
-  //   ),
-  // }),
+  // Employee Profile Router
+  profile: router({
+    get: protectedProcedure.query(({ ctx }) =>
+      db.getOrCreateEmployeeProfile(ctx.user.id)
+    ),
+    update: protectedProcedure
+      .input(
+        z.object({
+          position: z.string().optional(),
+          department: z.string().optional(),
+          phoneNumber: z.string().optional(),
+          profilePhotoUrl: z.string().optional(),
+          bio: z.string().optional(),
+        })
+      )
+      .mutation(({ ctx, input }) =>
+        db.updateEmployeeProfile(ctx.user.id, input)
+      ),
+  }),
+
+  // Daily Reports Router
+  reports: router({
+    create: protectedProcedure
+      .input(
+        z.object({
+          reportDate: z.date(),
+          tasksCompleted: z.string(),
+          hoursWorked: z.number().optional(),
+          notes: z.string().optional(),
+        })
+      )
+      .mutation(({ ctx, input }) =>
+        db.createDailyReport({
+          userId: ctx.user.id,
+          reportDate: input.reportDate,
+          tasksCompleted: input.tasksCompleted,
+          hoursWorked: input.hoursWorked ? String(input.hoursWorked) : undefined,
+          notes: input.notes,
+        })
+      ),
+    list: protectedProcedure.query(({ ctx }) =>
+      db.getUserDailyReports(ctx.user.id)
+    ),
+  }),
+
+  // Company Notices Router
+  notices: router({
+    list: protectedProcedure.query(() => db.getAllCompanyNotices()),
+    create: protectedProcedure
+      .input(
+        z.object({
+          title: z.string(),
+          content: z.string(),
+          isPinned: z.boolean().optional(),
+        })
+      )
+      .mutation(({ ctx, input }) => {
+        if (ctx.user.role !== "admin") {
+          throw new TRPCError({ code: "FORBIDDEN" });
+        }
+        return db.createCompanyNotice({
+          authorId: ctx.user.id,
+          title: input.title,
+          content: input.content,
+          isPinned: input.isPinned || false,
+        });
+      }),
+    delete: protectedProcedure
+      .input(z.object({ noticeId: z.number() }))
+      .mutation(({ ctx, input }) => {
+        if (ctx.user.role !== "admin") {
+          throw new TRPCError({ code: "FORBIDDEN" });
+        }
+        return db.deleteCompanyNotice(input.noticeId);
+      }),
+  }),
+
+  // Meetings Router
+  meetings: router({
+    list: protectedProcedure.query(() => db.getAllMeetings()),
+    create: protectedProcedure
+      .input(
+        z.object({
+          title: z.string(),
+          description: z.string().optional(),
+          startTime: z.date(),
+          endTime: z.date(),
+          location: z.string().optional(),
+          attendees: z.string().optional(),
+        })
+      )
+      .mutation(({ ctx, input }) =>
+        db.createMeeting({
+          createdById: ctx.user.id,
+          title: input.title,
+          description: input.description,
+          startTime: input.startTime,
+          endTime: input.endTime,
+          location: input.location,
+          attendees: input.attendees,
+        })
+      ),
+    update: protectedProcedure
+      .input(
+        z.object({
+          meetingId: z.number(),
+          title: z.string().optional(),
+          description: z.string().optional(),
+          startTime: z.date().optional(),
+          endTime: z.date().optional(),
+          location: z.string().optional(),
+        })
+      )
+      .mutation(({ ctx, input }) => {
+        const { meetingId, ...updateData } = input;
+        return db.updateMeeting(meetingId, updateData);
+      }),
+    delete: protectedProcedure
+      .input(z.object({ meetingId: z.number() }))
+      .mutation(({ ctx, input }) => db.deleteMeeting(input.meetingId)),
+  }),
+
+  // Client Tasks Router
+  tasks: router({
+    list: protectedProcedure.query(() => db.getAllClientTasks()),
+    create: protectedProcedure
+      .input(
+        z.object({
+          clientName: z.string(),
+          title: z.string(),
+          description: z.string().optional(),
+          assignedToId: z.number().optional(),
+          priority: z.enum(["low", "medium", "high"]).optional(),
+          dueDate: z.date().optional(),
+        })
+      )
+      .mutation(({ ctx, input }) =>
+        db.createClientTask({
+          createdById: ctx.user.id,
+          clientName: input.clientName,
+          title: input.title,
+          description: input.description,
+          assignedToId: input.assignedToId,
+          priority: input.priority || "medium",
+          dueDate: input.dueDate,
+        })
+      ),
+    update: protectedProcedure
+      .input(
+        z.object({
+          taskId: z.number(),
+          status: z.enum(["pending", "in_progress", "completed", "cancelled"]).optional(),
+          priority: z.enum(["low", "medium", "high"]).optional(),
+          assignedToId: z.number().optional(),
+          title: z.string().optional(),
+          description: z.string().optional(),
+        })
+      )
+      .mutation(({ ctx, input }) => {
+        const { taskId, ...updateData } = input;
+        return db.updateClientTask(taskId, updateData);
+      }),
+    delete: protectedProcedure
+      .input(z.object({ taskId: z.number() }))
+      .mutation(({ ctx, input }) => db.deleteClientTask(input.taskId)),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

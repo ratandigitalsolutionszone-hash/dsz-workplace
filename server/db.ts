@@ -1,6 +1,19 @@
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import {
+  InsertUser,
+  users,
+  employeeProfiles,
+  InsertEmployeeProfile,
+  dailyReports,
+  InsertDailyReport,
+  companyNotices,
+  InsertCompanyNotice,
+  meetings,
+  InsertMeeting,
+  clientTasks,
+  InsertClientTask,
+} from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -89,4 +102,169 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+// Employee Profile Queries
+export async function getOrCreateEmployeeProfile(userId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db
+    .select()
+    .from(employeeProfiles)
+    .where(eq(employeeProfiles.userId, userId))
+    .limit(1);
+
+  if (result.length > 0) return result[0];
+
+  // Create default profile if doesn't exist
+  await db.insert(employeeProfiles).values({
+    userId,
+  });
+
+  const newResult = await db
+    .select()
+    .from(employeeProfiles)
+    .where(eq(employeeProfiles.userId, userId))
+    .limit(1);
+
+  return newResult[0];
+}
+
+export async function updateEmployeeProfile(
+  userId: number,
+  data: Partial<InsertEmployeeProfile>
+) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  await db
+    .update(employeeProfiles)
+    .set({ ...data, updatedAt: new Date() })
+    .where(eq(employeeProfiles.userId, userId));
+
+  return getOrCreateEmployeeProfile(userId);
+}
+
+// Daily Reports Queries
+export async function createDailyReport(data: InsertDailyReport) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db.insert(dailyReports).values(data);
+  return result;
+}
+
+export async function getUserDailyReports(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db
+    .select()
+    .from(dailyReports)
+    .where(eq(dailyReports.userId, userId))
+    .orderBy((t) => t.reportDate);
+}
+
+// Company Notices Queries
+export async function createCompanyNotice(data: InsertCompanyNotice) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db.insert(companyNotices).values(data);
+  return result;
+}
+
+export async function getAllCompanyNotices() {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db
+    .select()
+    .from(companyNotices)
+    .orderBy((t) => t.createdAt);
+}
+
+export async function deleteCompanyNotice(noticeId: number) {
+  const db = await getDb();
+  if (!db) return false;
+
+  await db.delete(companyNotices).where(eq(companyNotices.id, noticeId));
+  return true;
+}
+
+// Meetings Queries
+export async function createMeeting(data: InsertMeeting) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db.insert(meetings).values(data);
+  return result;
+}
+
+export async function getAllMeetings() {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db
+    .select()
+    .from(meetings)
+    .orderBy((t) => t.startTime);
+}
+
+export async function updateMeeting(meetingId: number, data: Partial<InsertMeeting>) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  await db
+    .update(meetings)
+    .set({ ...data, updatedAt: new Date() })
+    .where(eq(meetings.id, meetingId));
+
+  return db.select().from(meetings).where(eq(meetings.id, meetingId)).limit(1);
+}
+
+export async function deleteMeeting(meetingId: number) {
+  const db = await getDb();
+  if (!db) return false;
+
+  await db.delete(meetings).where(eq(meetings.id, meetingId));
+  return true;
+}
+
+// Client Tasks Queries
+export async function createClientTask(data: InsertClientTask) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db.insert(clientTasks).values(data);
+  return result;
+}
+
+export async function getAllClientTasks() {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db
+    .select()
+    .from(clientTasks)
+    .orderBy((t) => t.createdAt);
+}
+
+export async function updateClientTask(taskId: number, data: Partial<InsertClientTask>) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  await db
+    .update(clientTasks)
+    .set({ ...data, updatedAt: new Date() })
+    .where(eq(clientTasks.id, taskId));
+
+  return db.select().from(clientTasks).where(eq(clientTasks.id, taskId)).limit(1);
+}
+
+export async function deleteClientTask(taskId: number) {
+  const db = await getDb();
+  if (!db) return false;
+
+  await db.delete(clientTasks).where(eq(clientTasks.id, taskId));
+  return true;
+}

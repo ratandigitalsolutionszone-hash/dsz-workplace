@@ -1,5 +1,20 @@
 {
   "version": "7",
   "dialect": "mysql",
-  "entries": []
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1781790055128,
+      "tag": "0000_kind_kate_bishop",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1781858330272,
+      "tag": "0001_tired_doctor_spectrum",
+      "breakpoints": true
+    }
+  ]
 }
