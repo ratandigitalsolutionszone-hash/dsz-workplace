@@ -11,6 +11,8 @@ import ReportsPage from "./pages/ReportsPage";
 import NoticesPage from "./pages/NoticesPage";
 import MeetingsPage from "./pages/MeetingsPage";
 import TasksPage from "./pages/TasksPage";
+import DirectoryPage from "./pages/DirectoryPage";
+import AdminReportsDashboard from "./pages/AdminReportsDashboard";
 
 function Router() {
   return (
@@ -22,6 +24,8 @@ function Router() {
       <Route path={"/notices"} component={NoticesPage} />
       <Route path={"/meetings"} component={MeetingsPage} />
       <Route path={"/tasks"} component={TasksPage} />
+      <Route path={"/directory"} component={DirectoryPage} />
+      <Route path={"/admin-reports"} component={AdminReportsDashboard} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

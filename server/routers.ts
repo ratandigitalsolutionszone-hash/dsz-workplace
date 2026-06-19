@@ -141,6 +141,38 @@ export const appRouter = router({
       .mutation(({ ctx, input }) => db.deleteMeeting(input.meetingId)),
   }),
 
+  // Employee Directory Router
+  directory: router({
+    list: protectedProcedure.query(() => db.getAllEmployeeProfiles()),
+    getById: protectedProcedure
+      .input(z.object({ userId: z.number() }))
+      .query(({ input }) => db.getEmployeeProfileById(input.userId)),
+  }),
+
+  // Admin Reports Monitoring Router
+  adminReports: router({
+    listAll: protectedProcedure.query(({ ctx }) => {
+      if (ctx.user.role !== "admin") {
+        throw new TRPCError({ code: "FORBIDDEN" });
+      }
+      return db.getAllEmployeeReports();
+    }),
+    getByEmployee: protectedProcedure
+      .input(z.object({ userId: z.number() }))
+      .query(({ ctx, input }) => {
+        if (ctx.user.role !== "admin") {
+          throw new TRPCError({ code: "FORBIDDEN" });
+        }
+        return db.getEmployeeReportsByUserId(input.userId);
+      }),
+    stats: protectedProcedure.query(({ ctx }) => {
+      if (ctx.user.role !== "admin") {
+        throw new TRPCError({ code: "FORBIDDEN" });
+      }
+      return db.getReportStats();
+    }),
+  }),
+
   // Client Tasks Router
   tasks: router({
     list: protectedProcedure.query(() => db.getAllClientTasks()),

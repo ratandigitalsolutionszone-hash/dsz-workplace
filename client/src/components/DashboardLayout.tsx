@@ -21,20 +21,29 @@ import {
 } from "@/components/ui/sidebar";
 import { getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
-import { LayoutDashboard, LogOut, PanelLeft, User, FileText, Bell, Calendar, Briefcase } from "lucide-react";
+import { LayoutDashboard, LogOut, PanelLeft, User, FileText, Bell, Calendar, Briefcase, Users, BarChart3 } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
 import { Button } from "./ui/button";
 
-const getMenuItems = (isAdmin: boolean) => [
-  { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
-  { icon: User, label: "My Profile", path: "/profile" },
-  { icon: FileText, label: "Daily Reports", path: "/reports" },
-  { icon: Bell, label: "Company Notices", path: "/notices" },
-  { icon: Calendar, label: "Meetings", path: "/meetings" },
-  { icon: Briefcase, label: "Client Tasks", path: "/tasks" },
-];
+const getMenuItems = (isAdmin: boolean) => {
+  const baseItems = [
+    { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
+    { icon: User, label: "My Profile", path: "/profile" },
+    { icon: FileText, label: "Daily Reports", path: "/reports" },
+    { icon: Bell, label: "Company Notices", path: "/notices" },
+    { icon: Calendar, label: "Meetings", path: "/meetings" },
+    { icon: Briefcase, label: "Client Tasks", path: "/tasks" },
+    { icon: Users, label: "Employee Directory", path: "/directory" },
+  ];
+
+  if (isAdmin) {
+    baseItems.push({ icon: BarChart3, label: "Reports Monitor", path: "/admin-reports" });
+  }
+
+  return baseItems;
+};
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";
 const DEFAULT_WIDTH = 280;

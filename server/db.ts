@@ -268,3 +268,122 @@ export async function deleteClientTask(taskId: number) {
   await db.delete(clientTasks).where(eq(clientTasks.id, taskId));
   return true;
 }
+
+// Employee Directory Queries
+export async function getAllEmployeeProfiles() {
+  const db = await getDb();
+  if (!db) return [];
+
+  // Join employee profiles with user data to get complete employee information
+  const result = await db
+    .select({
+      id: users.id,
+      name: users.name,
+      email: users.email,
+      position: employeeProfiles.position,
+      department: employeeProfiles.department,
+      phoneNumber: employeeProfiles.phoneNumber,
+      bio: employeeProfiles.bio,
+      profilePhotoUrl: employeeProfiles.profilePhotoUrl,
+      createdAt: employeeProfiles.createdAt,
+    })
+    .from(users)
+    .leftJoin(employeeProfiles, eq(users.id, employeeProfiles.userId))
+    .orderBy((t) => t.name);
+
+  return result;
+}
+
+export async function getEmployeeProfileById(userId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db
+    .select({
+      id: users.id,
+      name: users.name,
+      email: users.email,
+      position: employeeProfiles.position,
+      department: employeeProfiles.department,
+      phoneNumber: employeeProfiles.phoneNumber,
+      bio: employeeProfiles.bio,
+      profilePhotoUrl: employeeProfiles.profilePhotoUrl,
+      createdAt: employeeProfiles.createdAt,
+    })
+    .from(users)
+    .leftJoin(employeeProfiles, eq(users.id, employeeProfiles.userId))
+    .where(eq(users.id, userId))
+    .limit(1);
+
+  return result.length > 0 ? result[0] : undefined;
+}
+
+// Admin Reports Monitoring Queries
+export async function getAllEmployeeReports() {
+  const db = await getDb();
+  if (!db) return [];
+
+  // Join reports with user and employee profile data for admin monitoring
+  const result = await db
+    .select({
+      id: dailyReports.id,
+      userId: dailyReports.userId,
+      userName: users.name,
+      userEmail: users.email,
+      department: employeeProfiles.department,
+      reportDate: dailyReports.reportDate,
+      tasksCompleted: dailyReports.tasksCompleted,
+      hoursWorked: dailyReports.hoursWorked,
+      notes: dailyReports.notes,
+      createdAt: dailyReports.createdAt,
+    })
+    .from(dailyReports)
+    .leftJoin(users, eq(dailyReports.userId, users.id))
+    .leftJoin(employeeProfiles, eq(users.id, employeeProfiles.userId))
+    .orderBy((t) => t.reportDate);
+
+  return result;
+}
+
+export async function getEmployeeReportsByUserId(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  // Get reports for a specific employee with user and profile data
+  const result = await db
+    .select({
+      id: dailyReports.id,
+      userId: dailyReports.userId,
+      userName: users.name,
+      userEmail: users.email,
+      department: employeeProfiles.department,
+      reportDate: dailyReports.reportDate,
+      tasksCompleted: dailyReports.tasksCompleted,
+      hoursWorked: dailyReports.hoursWorked,
+      notes: dailyReports.notes,
+      createdAt: dailyReports.createdAt,
+    })
+    .from(dailyReports)
+    .leftJoin(users, eq(dailyReports.userId, users.id))
+    .leftJoin(employeeProfiles, eq(users.id, employeeProfiles.userId))
+    .where(eq(dailyReports.userId, userId))
+    .orderBy((t) => t.reportDate);
+
+  return result;
+}
+
+export async function getReportStats() {
+  const db = await getDb();
+  if (!db) return { totalReports: 0, employeesWithReports: 0, totalHours: 0 };
+
+  // Get summary statistics for admin dashboard
+  const reports = await db.select().from(dailyReports);
+  const uniqueEmployees = new Set(reports.map(r => r.userId));
+  const totalHours = reports.reduce((sum, r) => sum + (parseInt(r.hoursWorked || "0") || 0), 0);
+
+  return {
+    totalReports: reports.length,
+    employeesWithReports: uniqueEmployees.size,
+    totalHours,
+  };
+}
