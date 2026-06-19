@@ -70,3 +70,5 @@
 ## Bug Fixes
 
 - [x] Fix sidebar not displaying on Employee Directory and Admin Reports Dashboard pages
+
+- [x] Add DSZ favicon to website
