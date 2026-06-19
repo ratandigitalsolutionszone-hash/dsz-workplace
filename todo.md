@@ -66,3 +66,7 @@
 
 - [x] Employee Directory - All employees can view profiles of every employee in the company
 - [x] Admin Reports Dashboard - Admins can view and monitor all employee task reports from a central dashboard
+
+## Bug Fixes
+
+- [x] Fix sidebar not displaying on Employee Directory and Admin Reports Dashboard pages

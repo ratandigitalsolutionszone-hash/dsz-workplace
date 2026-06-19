@@ -1,4 +1,5 @@
 import { useAuth } from "@/_core/hooks/useAuth";
+import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -233,24 +234,32 @@ export default function AdminReportsDashboard() {
 
   if (authLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Spinner />
-      </div>
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-screen">
+          <Spinner />
+        </div>
+      </DashboardLayout>
     );
   }
 
   if (user?.role !== "admin") {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Card className="p-8 max-w-md text-center">
-          <h2 className="text-xl font-semibold mb-2">Access Denied</h2>
-          <p className="text-muted-foreground">
-            Only administrators can access the reports dashboard.
-          </p>
-        </Card>
-      </div>
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-screen">
+          <Card className="p-8 max-w-md text-center">
+            <h2 className="text-xl font-semibold mb-2">Access Denied</h2>
+            <p className="text-muted-foreground">
+              Only administrators can access the reports dashboard.
+            </p>
+          </Card>
+        </div>
+      </DashboardLayout>
     );
   }
 
-  return <AdminReportsDashboardContent />;
+  return (
+    <DashboardLayout>
+      <AdminReportsDashboardContent />
+    </DashboardLayout>
+  );
 }

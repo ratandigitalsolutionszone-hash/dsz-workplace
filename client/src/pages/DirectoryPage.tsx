@@ -1,4 +1,5 @@
 import { useAuth } from "@/_core/hooks/useAuth";
+import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -7,7 +8,7 @@ import { trpc } from "@/lib/trpc";
 import { Mail, MapPin, Briefcase } from "lucide-react";
 import { useState, useMemo } from "react";
 
-export default function DirectoryPage() {
+function DirectoryPageContent() {
   const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState<string | null>(null);
@@ -172,5 +173,13 @@ export default function DirectoryPage() {
         Showing {filteredEmployees.length} of {employees?.length || 0} employees
       </div>
     </div>
+  );
+}
+
+export default function DirectoryPage() {
+  return (
+    <DashboardLayout>
+      <DirectoryPageContent />
+    </DashboardLayout>
   );
 }
