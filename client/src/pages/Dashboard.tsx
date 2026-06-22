@@ -52,7 +52,7 @@ export default function Dashboard() {
     <DashboardLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Welcome back, {user?.name}!</h1>
+          <h1 className="text-3xl font-bold">Welcome back, Digital Solutions Zone!</h1>
           <p className="text-muted-foreground mt-2">Here's your workspace overview</p>
         </div>
 
