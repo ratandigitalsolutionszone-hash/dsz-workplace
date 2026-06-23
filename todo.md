@@ -72,3 +72,8 @@
 - [x] Fix sidebar not displaying on Employee Directory and Admin Reports Dashboard pages
 
 - [x] Add DSZ favicon to website
+
+## Customization & Branding Updates
+
+- [x] Update color scheme with official DSZ colors (#500151 primary, #FF0000 accent, Navy Blue, Bright Green)
+- [x] Update dashboard welcome message to display company name
