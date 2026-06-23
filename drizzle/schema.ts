@@ -155,3 +155,20 @@ export const emailHistory = mysqlTable("email_history", {
 
 export type EmailHistory = typeof emailHistory.$inferSelect;
 export type InsertEmailHistory = typeof emailHistory.$inferInsert;
+
+// Gmail Tokens Table
+export const gmailTokens = mysqlTable("gmail_tokens", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("user_id").notNull().unique(),
+  gmailEmail: varchar("gmail_email", { length: 320 }).notNull(),
+  accessToken: text("access_token").notNull(),
+  refreshToken: text("refresh_token"),
+  expiresAt: timestamp("expires_at"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  userIdIdx: index("gmail_token_user_id_idx").on(table.userId),
+}));
+
+export type GmailToken = typeof gmailTokens.$inferSelect;
+export type InsertGmailToken = typeof gmailTokens.$inferInsert;

@@ -102,3 +102,25 @@
 - [ ] Implement real server-side email delivery with report content composition (deferred - requires email service integration)
 - [x] Test end-to-end email functionality with UI
 - [x] Verify success and failure toast notifications
+
+
+## Email Delivery Fix (Critical Bug)
+
+- [ ] Integrate real email service (Nodemailer or Manus built-in email API)
+- [ ] Implement actual email sending with report content composition
+- [ ] Update email history to track real delivery status
+- [ ] Test end-to-end email delivery and verify success messages only show after actual delivery
+
+
+## Gmail OAuth Integration for Email Sending
+
+- [x] Add Gmail OAuth credentials configuration
+- [x] Update database schema with gmail_tokens table
+- [x] Implement Gmail OAuth service module (gmail.ts)
+- [x] Add Gmail token database helper functions
+- [ ] Implement Gmail OAuth procedures in backend routers
+- [ ] Add "Connect Gmail" button in Personal Information section
+- [ ] Implement Gmail API email sending in send report procedure
+- [ ] Add email connection status checks
+- [ ] Display notifications for missing Gmail connection
+- [ ] Test end-to-end Gmail OAuth and email delivery

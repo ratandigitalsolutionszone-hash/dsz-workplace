@@ -17,6 +17,9 @@ import {
   InsertEmailRecipient,
   emailHistory,
   InsertEmailHistory,
+  gmailTokens,
+  InsertGmailToken,
+  GmailToken,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -501,3 +504,52 @@ export async function getUserEmailHistory(userId: number) {
   }));
 }
 
+
+
+// Gmail Token Functions
+export async function saveGmailToken(userId: number, gmailEmail: string, accessToken: string, refreshToken?: string, expiresAt?: Date) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.insert(gmailTokens).values({
+    userId,
+    gmailEmail,
+    accessToken,
+    refreshToken: refreshToken || null,
+    expiresAt: expiresAt || null,
+  }).onDuplicateKeyUpdate({
+    set: {
+      gmailEmail,
+      accessToken,
+      refreshToken: refreshToken || null,
+      expiresAt: expiresAt || null,
+      updatedAt: new Date(),
+    },
+  });
+}
+
+export async function getGmailToken(userId: number): Promise<GmailToken | null> {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const result = await db.select().from(gmailTokens).where(eq(gmailTokens.userId, userId)).limit(1);
+  return result.length > 0 ? result[0] : null;
+}
+
+export async function deleteGmailToken(userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.delete(gmailTokens).where(eq(gmailTokens.userId, userId));
+}
+
+export async function updateGmailAccessToken(userId: number, accessToken: string, expiresAt?: Date) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.update(gmailTokens).set({
+    accessToken,
+    expiresAt: expiresAt || null,
+    updatedAt: new Date(),
+  }).where(eq(gmailTokens.userId, userId));
+}
