@@ -120,3 +120,38 @@ export const clientTasks = mysqlTable("client_tasks", {
 
 export type ClientTask = typeof clientTasks.$inferSelect;
 export type InsertClientTask = typeof clientTasks.$inferInsert;
+
+// Email Recipients Table
+export const emailRecipients = mysqlTable("email_recipients", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("user_id").notNull(),
+  recipientName: varchar("recipient_name", { length: 255 }).notNull(),
+  recipientEmail: varchar("recipient_email", { length: 320 }).notNull(),
+  isFrequent: boolean("is_frequent").default(false),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  userIdIdx: index("email_recipient_user_id_idx").on(table.userId),
+}));
+
+export type EmailRecipient = typeof emailRecipients.$inferSelect;
+export type InsertEmailRecipient = typeof emailRecipients.$inferInsert;
+
+// Email History Table
+export const emailHistory = mysqlTable("email_history", {
+  id: int("id").autoincrement().primaryKey(),
+  reportId: int("report_id").notNull(),
+  sentById: int("sent_by_id").notNull(),
+  recipients: text("recipients").notNull(),
+  subject: varchar("subject", { length: 255 }).notNull(),
+  status: mysqlEnum("status", ["sent", "failed", "pending"]).default("pending").notNull(),
+  errorMessage: text("error_message"),
+  sentAt: timestamp("sent_at").defaultNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  reportIdIdx: index("email_history_report_id_idx").on(table.reportId),
+  sentByIdIdx: index("email_history_sent_by_id_idx").on(table.sentById),
+}));
+
+export type EmailHistory = typeof emailHistory.$inferSelect;
+export type InsertEmailHistory = typeof emailHistory.$inferInsert;

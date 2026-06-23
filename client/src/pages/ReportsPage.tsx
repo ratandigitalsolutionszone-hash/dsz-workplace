@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+import SendReportDialog from "@/components/SendReportDialog";
 
 export default function ReportsPage() {
   const { user, loading } = useAuth();
@@ -157,9 +158,18 @@ export default function ReportsPage() {
                       </p>
                     )}
                   </div>
-                  <span className="text-xs text-muted-foreground">
-                    {new Date(report.createdAt).toLocaleDateString()}
-                  </span>
+                  <div className="flex items-center gap-3">
+                    <SendReportDialog
+                      reportId={report.id}
+                      reportDate={new Date(report.reportDate).toLocaleDateString()}
+                      tasksCompleted={String(report.tasksCompleted)}
+                      hoursWorked={report.hoursWorked ? parseFloat(String(report.hoursWorked)) : undefined}
+                      notes={report.notes ? String(report.notes) : undefined}
+                    />
+                    <span className="text-xs text-muted-foreground">
+                      {new Date(report.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
                 </div>
                 <div className="mt-3">
                   <p className="text-sm font-medium mb-2">Tasks Completed:</p>

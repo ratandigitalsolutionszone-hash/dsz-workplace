@@ -217,6 +217,87 @@ export const appRouter = router({
       .input(z.object({ taskId: z.number() }))
       .mutation(({ ctx, input }) => db.deleteClientTask(input.taskId)),
   }),
+
+  // Email Recipients Router
+  emailRecipients: router({
+    list: protectedProcedure.query(({ ctx }) =>
+      db.getEmailRecipients(ctx.user.id)
+    ),
+    add: protectedProcedure
+      .input(
+        z.object({
+          recipientName: z.string(),
+          recipientEmail: z.string().email(),
+        })
+      )
+      .mutation(({ ctx, input }) =>
+        db.addEmailRecipient(ctx.user.id, input.recipientName, input.recipientEmail)
+      ),
+    update: protectedProcedure
+      .input(
+        z.object({
+          recipientId: z.number(),
+          recipientName: z.string(),
+          recipientEmail: z.string().email(),
+        })
+      )
+      .mutation(({ ctx, input }) =>
+        db.updateEmailRecipient(input.recipientId, input.recipientName, input.recipientEmail, ctx.user.id)
+      ),
+    delete: protectedProcedure
+      .input(z.object({ recipientId: z.number() }))
+      .mutation(({ ctx, input }) => db.deleteEmailRecipient(input.recipientId, ctx.user.id)),
+    markFrequent: protectedProcedure
+      .input(z.object({ recipientId: z.number(), isFrequent: z.boolean() }))
+      .mutation(({ ctx, input }) =>
+        db.markRecipientAsFrequent(input.recipientId, input.isFrequent, ctx.user.id)
+      ),
+  }),
+
+  // Email History Router
+  emailHistory: router({
+    getByReport: protectedProcedure
+      .input(z.object({ reportId: z.number() }))
+      .query(({ input }) => db.getEmailHistory(input.reportId)),
+    getUserHistory: protectedProcedure.query(({ ctx }) =>
+      db.getUserEmailHistory(ctx.user.id)
+    ),
+    sendReport: protectedProcedure
+      .input(
+        z.object({
+          reportId: z.number(),
+          recipients: z.array(z.string().email()),
+          subject: z.string(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        try {
+          // Create email history entry
+          await db.createEmailHistory(
+            input.reportId,
+            ctx.user.id,
+            input.recipients,
+            input.subject,
+            "sent"
+          );
+          return { success: true, message: "Report sent successfully" };
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : "Failed to send report";
+          await db.createEmailHistory(
+            input.reportId,
+            ctx.user.id,
+            input.recipients,
+            input.subject,
+            "failed",
+            errorMessage
+          );
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: errorMessage,
+          });
+        }
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

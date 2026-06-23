@@ -13,6 +13,10 @@ import {
   InsertMeeting,
   clientTasks,
   InsertClientTask,
+  emailRecipients,
+  InsertEmailRecipient,
+  emailHistory,
+  InsertEmailHistory,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -387,3 +391,113 @@ export async function getReportStats() {
     totalHours,
   };
 }
+
+
+// Email Recipients Functions
+export async function addEmailRecipient(userId: number, recipientName: string, recipientEmail: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(emailRecipients).values({
+    userId,
+    recipientName,
+    recipientEmail,
+    isFrequent: false,
+  });
+
+  return result;
+}
+
+export async function getEmailRecipients(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const result = await db.select().from(emailRecipients).where(eq(emailRecipients.userId, userId));
+  return result;
+}
+
+export async function deleteEmailRecipient(recipientId: number, userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Verify the recipient belongs to the user
+  const recipient = await db.select().from(emailRecipients).where(eq(emailRecipients.id, recipientId)).limit(1);
+  if (!recipient.length || recipient[0].userId !== userId) {
+    throw new Error("Unauthorized: recipient does not belong to this user");
+  }
+
+  await db.delete(emailRecipients).where(eq(emailRecipients.id, recipientId));
+}
+
+export async function markRecipientAsFrequent(recipientId: number, isFrequent: boolean, userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Verify the recipient belongs to the user
+  const recipient = await db.select().from(emailRecipients).where(eq(emailRecipients.id, recipientId)).limit(1);
+  if (!recipient.length || recipient[0].userId !== userId) {
+    throw new Error("Unauthorized: recipient does not belong to this user");
+  }
+
+  await db.update(emailRecipients).set({ isFrequent }).where(eq(emailRecipients.id, recipientId));
+}
+
+export async function updateEmailRecipient(recipientId: number, recipientName: string, recipientEmail: string, userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Verify the recipient belongs to the user
+  const recipient = await db.select().from(emailRecipients).where(eq(emailRecipients.id, recipientId)).limit(1);
+  if (!recipient.length || recipient[0].userId !== userId) {
+    throw new Error("Unauthorized: recipient does not belong to this user");
+  }
+
+  await db.update(emailRecipients).set({ recipientName, recipientEmail }).where(eq(emailRecipients.id, recipientId));
+}
+
+// Email History Functions
+export async function createEmailHistory(reportId: number, sentById: number, recipients: string[], subject: string, status: "sent" | "failed" | "pending" = "pending", errorMessage?: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(emailHistory).values({
+    reportId,
+    sentById,
+    recipients: JSON.stringify(recipients),
+    subject,
+    status,
+    errorMessage,
+  });
+
+  return result;
+}
+
+export async function getEmailHistory(reportId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const result = await db.select().from(emailHistory).where(eq(emailHistory.reportId, reportId));
+  return result.map(item => ({
+    ...item,
+    recipients: JSON.parse(item.recipients as string),
+  }));
+}
+
+export async function updateEmailHistoryStatus(historyId: number, status: "sent" | "failed" | "pending", errorMessage?: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.update(emailHistory).set({ status, errorMessage }).where(eq(emailHistory.id, historyId));
+}
+
+export async function getUserEmailHistory(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const result = await db.select().from(emailHistory).where(eq(emailHistory.sentById, userId));
+  return result.map(item => ({
+    ...item,
+    recipients: JSON.parse(item.recipients as string),
+  }));
+}
+
