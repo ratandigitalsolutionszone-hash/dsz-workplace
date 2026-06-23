@@ -28,16 +28,31 @@ export function registerOAuthRoutes(app: Express) {
     }
 
     try {
-      const { exchangeGmailCodeForToken } = require("./gmail");
-      const userId = parseInt(state);
+      const { exchangeCodeForToken, getGmailProfile } = require("./gmail");
       
-      if (isNaN(userId)) {
+      // Decode state from base64 JSON
+      let userId: number;
+      try {
+        const decodedState = JSON.parse(Buffer.from(state, "base64").toString("utf-8"));
+        userId = decodedState.userId;
+        if (!userId || isNaN(userId)) {
+          throw new Error("Invalid userId in state");
+        }
+      } catch (e) {
+        console.error("[Gmail OAuth] Failed to decode state:", e);
         res.status(400).json({ error: "Invalid state parameter" });
         return;
       }
 
-      const tokenData = await exchangeGmailCodeForToken(code);
-      await db.saveGmailToken(userId, tokenData.access_token, tokenData.refresh_token, tokenData.id_token);
+      // Exchange code for tokens
+      const tokenData = await exchangeCodeForToken(code, userId);
+      
+      // Get Gmail profile email
+      const profile = await getGmailProfile(tokenData.accessToken);
+      const gmailEmail = profile?.email || "unknown@gmail.com";
+      
+      // Save tokens to database
+      await db.saveGmailToken(userId, tokenData.accessToken, tokenData.refreshToken, gmailEmail);
       
       res.redirect(302, "/?gmail_connected=true");
     } catch (error) {

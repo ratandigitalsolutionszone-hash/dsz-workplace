@@ -245,14 +245,19 @@ export const appRouter = router({
 
           // Send via Gmail API
           const { sendEmailViaGmail } = require("./_core/gmail");
-          await sendEmailViaGmail(
+          const sendResult = await sendEmailViaGmail(
             gmailToken.accessToken,
             input.recipients,
             input.subject,
             emailBody
           );
 
-          // Create successful email history entry
+          // Check if email was actually sent
+          if (!sendResult.success) {
+            throw new Error(`Gmail API error: ${sendResult.error}`);
+          }
+
+          // Create successful email history entry only after confirmed delivery
           await db.createEmailHistory(
             input.reportId,
             ctx.user.id,

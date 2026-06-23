@@ -120,8 +120,8 @@
 - [x] Add Gmail token database helper functions
 - [x] Implement Gmail OAuth procedures in backend routers
 - [x] Add "Connect Gmail" button in Personal Information section (GmailConnector component)
-- [ ] Implement Gmail OAuth callback route handler
-- [ ] Implement Gmail API email sending in send report procedure
-- [ ] Add email connection status checks in report sending
-- [ ] Display notifications for missing Gmail connection
-- [ ] Test end-to-end Gmail OAuth and email delivery
+- [x] Implement Gmail OAuth callback route handler (fixed state decoding and function names)
+- [x] Implement Gmail API email sending in send report procedure (with delivery verification)
+- [x] Add email connection status checks in report sending
+- [x] Display notifications for missing Gmail connection
+- [ ] Test end-to-end Gmail OAuth and email delivery (ready for testing)
