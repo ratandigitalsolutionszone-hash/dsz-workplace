@@ -58,21 +58,48 @@ export default function Dashboard() {
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card className="p-6">
-            <div className="text-sm text-muted-foreground">Total Reports</div>
-            <div className="text-2xl font-bold mt-2">{reports?.length || 0}</div>
+          {/* Total Reports - Purple */}
+          <Card className="p-6 border-l-4 border-l-[#500151] bg-gradient-to-br from-[#f5f0f7] to-white hover:shadow-lg transition-shadow">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-sm font-medium text-[#500151]">Total Reports</div>
+                <div className="text-3xl font-bold mt-3 text-[#500151]">{reports?.length || 0}</div>
+              </div>
+              <div className="text-4xl opacity-20 text-[#500151]">📊</div>
+            </div>
           </Card>
-          <Card className="p-6">
-            <div className="text-sm text-muted-foreground">Company Notices</div>
-            <div className="text-2xl font-bold mt-2">{notices?.length || 0}</div>
+
+          {/* Company Notices - Red */}
+          <Card className="p-6 border-l-4 border-l-[#FF0000] bg-gradient-to-br from-[#ffe6e6] to-white hover:shadow-lg transition-shadow">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-sm font-medium text-[#FF0000]">Company Notices</div>
+                <div className="text-3xl font-bold mt-3 text-[#FF0000]">{notices?.length || 0}</div>
+              </div>
+              <div className="text-4xl opacity-20 text-[#FF0000]">📢</div>
+            </div>
           </Card>
-          <Card className="p-6">
-            <div className="text-sm text-muted-foreground">Upcoming Meetings</div>
-            <div className="text-2xl font-bold mt-2">{upcomingMeetings.length}</div>
+
+          {/* Upcoming Meetings - Dark Gray */}
+          <Card className="p-6 border-l-4 border-l-[#484747] bg-gradient-to-br from-[#f0eded] to-white hover:shadow-lg transition-shadow">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-sm font-medium text-[#484747]">Upcoming Meetings</div>
+                <div className="text-3xl font-bold mt-3 text-[#484747]">{upcomingMeetings.length}</div>
+              </div>
+              <div className="text-4xl opacity-20 text-[#484747]">📅</div>
+            </div>
           </Card>
-          <Card className="p-6">
-            <div className="text-sm text-muted-foreground">Active Tasks</div>
-            <div className="text-2xl font-bold mt-2">{activeTasks.length}</div>
+
+          {/* Active Tasks - Green */}
+          <Card className="p-6 border-l-4 border-l-[#22c55e] bg-gradient-to-br from-[#e8f5e9] to-white hover:shadow-lg transition-shadow">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-sm font-medium text-[#22c55e]">Active Tasks</div>
+                <div className="text-3xl font-bold mt-3 text-[#22c55e]">{activeTasks.length}</div>
+              </div>
+              <div className="text-4xl opacity-20 text-[#22c55e]">✓</div>
+            </div>
           </Card>
         </div>
 
