@@ -124,4 +124,11 @@
 - [x] Implement Gmail API email sending in send report procedure (with delivery verification)
 - [x] Add email connection status checks in report sending
 - [x] Display notifications for missing Gmail connection
-- [ ] Test end-to-end Gmail OAuth and email delivery (ready for testing)
+- [x] Configure Gmail OAuth Client ID and Client Secret
+- [x] Validate Gmail OAuth credentials with unit tests
+- [ ] Perform logged-in Gmail OAuth connection test through the UI
+- [ ] Verify token persistence after OAuth callback
+- [ ] Test authenticated sendReport with connected Gmail account
+- [ ] Verify email history records 'sent' only after confirmed delivery
+- [ ] Test failure cases (missing connection, invalid token, API failure)
+- [ ] Verify error toasts and 'failed' status in email history
