@@ -82,3 +82,5 @@
 ## Dashboard Enhancements
 
 - [x] Add specific colors to dashboard stat cards (Total Reports, Company Notices, Upcoming Meetings, Active Tasks)
+
+- [x] Separate and style My Profile page into two distinct sections with professional color scheme
