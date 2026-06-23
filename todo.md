@@ -126,6 +126,7 @@
 - [x] Display notifications for missing Gmail connection
 - [x] Configure Gmail OAuth Client ID and Client Secret
 - [x] Validate Gmail OAuth credentials with unit tests
+- [x] Fix Gmail OAuth redirect URI to use correct application domain
 - [ ] Perform logged-in Gmail OAuth connection test through the UI
 - [ ] Verify token persistence after OAuth callback
 - [ ] Test authenticated sendReport with connected Gmail account

@@ -2,10 +2,22 @@ import { google } from "googleapis";
 import { ENV } from "./env";
 import { TRPCError } from "@trpc/server";
 
+// Determine the correct redirect URI based on environment
+const getRedirectUri = () => {
+  // In production, use the actual application domain
+  if (ENV.isProduction) {
+    // Get the host from the request context when available
+    // For now, construct from environment or use a fallback
+    return "https://dszworkspace-fkysrost.manus.space/api/oauth/gmail/callback";
+  }
+  // In development, use localhost
+  return "http://localhost:3000/api/oauth/gmail/callback";
+};
+
 const oauth2Client = new google.auth.OAuth2(
   ENV.gmailClientId,
   ENV.gmailClientSecret,
-  `${process.env.VITE_OAUTH_PORTAL_URL || "http://localhost:3000"}/api/oauth/gmail/callback`
+  getRedirectUri()
 );
 
 export function getGmailAuthUrl(userId: number): string {
