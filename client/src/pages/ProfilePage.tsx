@@ -2,6 +2,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { useLocation } from "wouter";
 import { useEffect, useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
+import { GmailConnector } from "@/components/GmailConnector";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -191,6 +192,9 @@ export default function ProfilePage() {
             )}
           </div>
         </Card>
+
+        {/* Section 3: Gmail Integration */}
+        <GmailConnector />
       </div>
     </DashboardLayout>
   );

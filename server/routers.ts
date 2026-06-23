@@ -254,6 +254,25 @@ export const appRouter = router({
       ),
   }),
 
+  // Gmail OAuth Router
+  gmail: router({
+    getAuthUrl: protectedProcedure.query(({ ctx }) => {
+      const { getGmailAuthUrl } = require("./_core/gmail");
+      return { authUrl: getGmailAuthUrl(ctx.user.id) };
+    }),
+    getStatus: protectedProcedure.query(async ({ ctx }) => {
+      const token = await db.getGmailToken(ctx.user.id);
+      return {
+        connected: !!token,
+        email: token?.gmailEmail || null,
+      };
+    }),
+    disconnect: protectedProcedure.mutation(async ({ ctx }) => {
+      await db.deleteGmailToken(ctx.user.id);
+      return { success: true };
+    }),
+  }),
+
   // Email History Router
   emailHistory: router({
     getByReport: protectedProcedure

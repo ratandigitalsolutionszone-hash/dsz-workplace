@@ -118,9 +118,10 @@
 - [x] Update database schema with gmail_tokens table
 - [x] Implement Gmail OAuth service module (gmail.ts)
 - [x] Add Gmail token database helper functions
-- [ ] Implement Gmail OAuth procedures in backend routers
-- [ ] Add "Connect Gmail" button in Personal Information section
+- [x] Implement Gmail OAuth procedures in backend routers
+- [x] Add "Connect Gmail" button in Personal Information section (GmailConnector component)
+- [ ] Implement Gmail OAuth callback route handler
 - [ ] Implement Gmail API email sending in send report procedure
-- [ ] Add email connection status checks
+- [ ] Add email connection status checks in report sending
 - [ ] Display notifications for missing Gmail connection
 - [ ] Test end-to-end Gmail OAuth and email delivery
