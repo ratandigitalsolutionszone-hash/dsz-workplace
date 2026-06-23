@@ -23,9 +23,7 @@ function AdminReportsDashboardContent() {
   const [selectedEmployee, setSelectedEmployee] = useState<number | null>(null);
 
   const { data: allReports, isLoading: reportsLoading, error: reportsError } =
-    trpc.adminReports.listAll.useQuery();
-  const { data: stats, isLoading: statsLoading, error: statsError } = 
-    trpc.adminReports.stats.useQuery();
+    trpc.adminReports.getAllReports.useQuery();
 
   const filteredReports = useMemo(() => {
     if (!allReports) return [];
@@ -54,7 +52,7 @@ function AdminReportsDashboardContent() {
     });
   }, [allReports]);
 
-  if (reportsLoading || statsLoading) {
+  if (reportsLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Spinner />
@@ -62,7 +60,7 @@ function AdminReportsDashboardContent() {
     );
   }
 
-  if (reportsError || statsError) {
+  if (reportsError) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Card className="p-8 max-w-md text-center">
@@ -90,7 +88,7 @@ function AdminReportsDashboardContent() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Total Reports</p>
-              <p className="text-2xl font-bold mt-2">{stats?.totalReports || 0}</p>
+              <p className="text-2xl font-bold mt-2">{allReports?.length || 0}</p>
             </div>
             <FileText className="h-8 w-8 text-blue-500 opacity-50" />
           </div>
@@ -101,7 +99,7 @@ function AdminReportsDashboardContent() {
             <div>
               <p className="text-sm text-muted-foreground">Employees Reporting</p>
               <p className="text-2xl font-bold mt-2">
-                {stats?.employeesWithReports || 0}
+                {new Set(allReports?.map((r: any) => r.userId)).size || 0}
               </p>
             </div>
             <Users className="h-8 w-8 text-green-500 opacity-50" />
@@ -112,7 +110,9 @@ function AdminReportsDashboardContent() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Total Hours Logged</p>
-              <p className="text-2xl font-bold mt-2">{stats?.totalHours || 0}</p>
+              <p className="text-2xl font-bold mt-2">
+                {allReports?.reduce((sum: number, r: any) => sum + (parseFloat(r.hoursWorked) || 0), 0).toFixed(1) || 0}
+              </p>
             </div>
             <Clock className="h-8 w-8 text-orange-500 opacity-50" />
           </div>
@@ -123,8 +123,8 @@ function AdminReportsDashboardContent() {
             <div>
               <p className="text-sm text-muted-foreground">Avg Hours/Report</p>
               <p className="text-2xl font-bold mt-2">
-                {stats?.totalReports && stats?.totalHours
-                  ? (stats.totalHours / stats.totalReports).toFixed(1)
+                {allReports && allReports.length > 0
+                  ? (allReports.reduce((sum: number, r: any) => sum + (parseFloat(r.hoursWorked) || 0), 0) / allReports.length).toFixed(1)
                   : 0}
               </p>
             </div>

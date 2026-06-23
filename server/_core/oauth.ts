@@ -1,8 +1,8 @@
-import { COOKIE_NAME, ONE_YEAR_MS } from "@shared/const";
 import type { Express, Request, Response } from "express";
 import * as db from "../db";
 import { getSessionCookieOptions } from "./cookies";
 import { sdk } from "./sdk";
+import { COOKIE_NAME, ONE_YEAR_MS } from "@shared/const";
 
 function getQueryParam(req: Request, key: string): string | undefined {
   const value = req.query[key];
@@ -10,6 +10,42 @@ function getQueryParam(req: Request, key: string): string | undefined {
 }
 
 export function registerOAuthRoutes(app: Express) {
+  // Gmail OAuth Callback
+  app.get("/api/oauth/gmail/callback", async (req: Request, res: Response) => {
+    const code = getQueryParam(req, "code");
+    const state = getQueryParam(req, "state");
+    const error = getQueryParam(req, "error");
+
+    if (error) {
+      console.error("[Gmail OAuth] User denied permission:", error);
+      res.redirect(302, "/?gmail_error=" + encodeURIComponent(error));
+      return;
+    }
+
+    if (!code || !state) {
+      res.status(400).json({ error: "code and state are required" });
+      return;
+    }
+
+    try {
+      const { exchangeGmailCodeForToken } = require("./gmail");
+      const userId = parseInt(state);
+      
+      if (isNaN(userId)) {
+        res.status(400).json({ error: "Invalid state parameter" });
+        return;
+      }
+
+      const tokenData = await exchangeGmailCodeForToken(code);
+      await db.saveGmailToken(userId, tokenData.access_token, tokenData.refresh_token, tokenData.id_token);
+      
+      res.redirect(302, "/?gmail_connected=true");
+    } catch (error) {
+      console.error("[Gmail OAuth] Callback failed", error);
+      res.redirect(302, "/?gmail_error=" + encodeURIComponent("Failed to connect Gmail"));
+    }
+  });
+
   app.get("/api/oauth/callback", async (req: Request, res: Response) => {
     const code = getQueryParam(req, "code");
     const state = getQueryParam(req, "state");

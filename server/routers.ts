@@ -46,27 +46,21 @@ export const appRouter = router({
         z.object({
           reportDate: z.date(),
           tasksCompleted: z.string(),
-          hoursWorked: z.number().optional(),
+          hoursWorked: z.string().optional(),
           notes: z.string().optional(),
         })
       )
       .mutation(({ ctx, input }) =>
-        db.createDailyReport({
-          userId: ctx.user.id,
-          reportDate: input.reportDate,
-          tasksCompleted: input.tasksCompleted,
-          hoursWorked: input.hoursWorked ? String(input.hoursWorked) : undefined,
-          notes: input.notes,
-        })
+        db.createDailyReport({ ...input, userId: ctx.user.id })
       ),
-    list: protectedProcedure.query(({ ctx }) =>
+    getAll: protectedProcedure.query(({ ctx }) =>
       db.getUserDailyReports(ctx.user.id)
     ),
   }),
 
   // Company Notices Router
   notices: router({
-    list: protectedProcedure.query(() => db.getAllCompanyNotices()),
+    getAll: publicProcedure.query(() => db.getAllCompanyNotices()),
     create: protectedProcedure
       .input(
         z.object({
@@ -75,20 +69,15 @@ export const appRouter = router({
           isPinned: z.boolean().optional(),
         })
       )
-      .mutation(({ ctx, input }) => {
+      .mutation(async ({ ctx, input }) => {
         if (ctx.user.role !== "admin") {
           throw new TRPCError({ code: "FORBIDDEN" });
         }
-        return db.createCompanyNotice({
-          authorId: ctx.user.id,
-          title: input.title,
-          content: input.content,
-          isPinned: input.isPinned || false,
-        });
+        return db.createCompanyNotice({ ...input, authorId: ctx.user.id });
       }),
     delete: protectedProcedure
       .input(z.object({ noticeId: z.number() }))
-      .mutation(({ ctx, input }) => {
+      .mutation(async ({ ctx, input }) => {
         if (ctx.user.role !== "admin") {
           throw new TRPCError({ code: "FORBIDDEN" });
         }
@@ -98,7 +87,7 @@ export const appRouter = router({
 
   // Meetings Router
   meetings: router({
-    list: protectedProcedure.query(() => db.getAllMeetings()),
+    getAll: protectedProcedure.query(() => db.getAllMeetings()),
     create: protectedProcedure
       .input(
         z.object({
@@ -107,19 +96,10 @@ export const appRouter = router({
           startTime: z.date(),
           endTime: z.date(),
           location: z.string().optional(),
-          attendees: z.string().optional(),
         })
       )
       .mutation(({ ctx, input }) =>
-        db.createMeeting({
-          createdById: ctx.user.id,
-          title: input.title,
-          description: input.description,
-          startTime: input.startTime,
-          endTime: input.endTime,
-          location: input.location,
-          attendees: input.attendees,
-        })
+        db.createMeeting({ ...input, createdById: ctx.user.id })
       ),
     update: protectedProcedure
       .input(
@@ -132,126 +112,80 @@ export const appRouter = router({
           location: z.string().optional(),
         })
       )
-      .mutation(({ ctx, input }) => {
+      .mutation(async ({ ctx, input }) => {
         const { meetingId, ...updateData } = input;
         return db.updateMeeting(meetingId, updateData);
       }),
     delete: protectedProcedure
       .input(z.object({ meetingId: z.number() }))
-      .mutation(({ ctx, input }) => db.deleteMeeting(input.meetingId)),
-  }),
-
-  // Employee Directory Router
-  directory: router({
-    list: protectedProcedure.query(() => db.getAllEmployeeProfiles()),
-    getById: protectedProcedure
-      .input(z.object({ userId: z.number() }))
-      .query(({ input }) => db.getEmployeeProfileById(input.userId)),
-  }),
-
-  // Admin Reports Monitoring Router
-  adminReports: router({
-    listAll: protectedProcedure.query(({ ctx }) => {
-      if (ctx.user.role !== "admin") {
-        throw new TRPCError({ code: "FORBIDDEN" });
-      }
-      return db.getAllEmployeeReports();
-    }),
-    getByEmployee: protectedProcedure
-      .input(z.object({ userId: z.number() }))
-      .query(({ ctx, input }) => {
-        if (ctx.user.role !== "admin") {
-          throw new TRPCError({ code: "FORBIDDEN" });
-        }
-        return db.getEmployeeReportsByUserId(input.userId);
+      .mutation(async ({ ctx, input }) => {
+        return db.deleteMeeting(input.meetingId);
       }),
-    stats: protectedProcedure.query(({ ctx }) => {
-      if (ctx.user.role !== "admin") {
-        throw new TRPCError({ code: "FORBIDDEN" });
-      }
-      return db.getReportStats();
-    }),
   }),
 
   // Client Tasks Router
   tasks: router({
-    list: protectedProcedure.query(() => db.getAllClientTasks()),
+    getAll: protectedProcedure.query(() => db.getAllClientTasks()),
     create: protectedProcedure
       .input(
         z.object({
           clientName: z.string(),
           title: z.string(),
           description: z.string().optional(),
-          assignedToId: z.number().optional(),
-          priority: z.enum(["low", "medium", "high"]).optional(),
           dueDate: z.date().optional(),
+          priority: z.enum(["low", "medium", "high"]).optional(),
+          status: z.enum(["pending", "in_progress", "completed", "cancelled"]).optional(),
         })
       )
       .mutation(({ ctx, input }) =>
-        db.createClientTask({
-          createdById: ctx.user.id,
-          clientName: input.clientName,
-          title: input.title,
-          description: input.description,
-          assignedToId: input.assignedToId,
-          priority: input.priority || "medium",
-          dueDate: input.dueDate,
-        })
+        db.createClientTask({ ...input, createdById: ctx.user.id })
       ),
     update: protectedProcedure
       .input(
         z.object({
           taskId: z.number(),
-          status: z.enum(["pending", "in_progress", "completed", "cancelled"]).optional(),
-          priority: z.enum(["low", "medium", "high"]).optional(),
-          assignedToId: z.number().optional(),
           title: z.string().optional(),
           description: z.string().optional(),
+          dueDate: z.date().optional(),
+          priority: z.enum(["low", "medium", "high"]).optional(),
+          status: z.enum(["pending", "in_progress", "completed", "cancelled"]).optional(),
         })
       )
-      .mutation(({ ctx, input }) => {
+      .mutation(async ({ ctx, input }) => {
         const { taskId, ...updateData } = input;
         return db.updateClientTask(taskId, updateData);
       }),
     delete: protectedProcedure
       .input(z.object({ taskId: z.number() }))
-      .mutation(({ ctx, input }) => db.deleteClientTask(input.taskId)),
+      .mutation(async ({ ctx, input }) => {
+        return db.deleteClientTask(input.taskId);
+      }),
   }),
 
-  // Email Recipients Router
-  emailRecipients: router({
-    list: protectedProcedure.query(({ ctx }) =>
-      db.getEmailRecipients(ctx.user.id)
-    ),
-    add: protectedProcedure
-      .input(
-        z.object({
-          recipientName: z.string(),
-          recipientEmail: z.string().email(),
-        })
-      )
-      .mutation(({ ctx, input }) =>
-        db.addEmailRecipient(ctx.user.id, input.recipientName, input.recipientEmail)
-      ),
-    update: protectedProcedure
-      .input(
-        z.object({
-          recipientId: z.number(),
-          recipientName: z.string(),
-          recipientEmail: z.string().email(),
-        })
-      )
-      .mutation(({ ctx, input }) =>
-        db.updateEmailRecipient(input.recipientId, input.recipientName, input.recipientEmail, ctx.user.id)
-      ),
-    delete: protectedProcedure
-      .input(z.object({ recipientId: z.number() }))
-      .mutation(({ ctx, input }) => db.deleteEmailRecipient(input.recipientId, ctx.user.id)),
-    markFrequent: protectedProcedure
-      .input(z.object({ recipientId: z.number(), isFrequent: z.boolean() }))
-      .mutation(({ ctx, input }) =>
-        db.markRecipientAsFrequent(input.recipientId, input.isFrequent, ctx.user.id)
-      ),
+  // Employee Directory Router
+  directory: router({
+    getAllEmployees: publicProcedure.query(() => db.getAllEmployeeProfiles()),
+    getEmployeeProfile: publicProcedure
+      .input(z.object({ userId: z.number() }))
+      .query(({ input }) => db.getOrCreateEmployeeProfile(input.userId)),
+  }),
+
+  // Admin Reports Monitor Router
+  adminReports: router({
+    getAllReports: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user.role !== "admin") {
+        throw new TRPCError({ code: "FORBIDDEN" });
+      }
+      return db.getAllEmployeeReports();
+    }),
+    getReportsByEmployee: protectedProcedure
+      .input(z.object({ employeeId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") {
+          throw new TRPCError({ code: "FORBIDDEN" });
+        }
+        return db.getEmployeeReportsByUserId(input.employeeId);
+      }),
   }),
 
   // Gmail OAuth Router
@@ -291,7 +225,34 @@ export const appRouter = router({
       )
       .mutation(async ({ ctx, input }) => {
         try {
-          // Create email history entry
+          // Check if Gmail is connected
+          const gmailToken = await db.getGmailToken(ctx.user.id);
+          if (!gmailToken) {
+            throw new Error("Gmail account not connected. Please connect your Gmail account in your profile.");
+          }
+
+          // Fetch the report details
+          const reports = await db.getUserDailyReports(ctx.user.id);
+          const report = reports.find(r => r.id === input.reportId);
+          if (!report) {
+            throw new Error("Report not found");
+          }
+
+          // Compose email content
+          const separator = "=".repeat(50);
+          const reportDate = new Date(report.reportDate).toLocaleDateString();
+          const emailBody = `Daily Report Summary\n${separator}\n\nEmployee: ${ctx.user.name}\nReport Date: ${reportDate}\n\nTasks Completed:\n${report.tasksCompleted}\n\n${report.hoursWorked ? `Hours Worked: ${report.hoursWorked}\n` : ""}${report.notes ? `Notes:\n${report.notes}\n` : ""}\n${separator}\nSent via DSZ Workspace`;
+
+          // Send via Gmail API
+          const { sendEmailViaGmail } = require("./_core/gmail");
+          await sendEmailViaGmail(
+            gmailToken.accessToken,
+            input.recipients,
+            input.subject,
+            emailBody
+          );
+
+          // Create successful email history entry
           await db.createEmailHistory(
             input.reportId,
             ctx.user.id,
@@ -299,23 +260,58 @@ export const appRouter = router({
             input.subject,
             "sent"
           );
-          return { success: true, message: "Report sent successfully" };
+          return { success: true, message: "Report sent successfully via Gmail" };
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : "Failed to send report";
-          await db.createEmailHistory(
-            input.reportId,
-            ctx.user.id,
-            input.recipients,
-            input.subject,
-            "failed",
-            errorMessage
-          );
+          
+          // Create failed email history entry
+          try {
+            await db.createEmailHistory(
+              input.reportId,
+              ctx.user.id,
+              input.recipients,
+              input.subject,
+              "failed",
+              errorMessage
+            );
+          } catch (historyError) {
+            console.error("Failed to create error history entry:", historyError);
+          }
+          
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
             message: errorMessage,
           });
         }
       }),
+  }),
+
+  // Email Recipients Router
+  emailRecipients: router({
+    getAll: protectedProcedure.query(({ ctx }) =>
+      db.getEmailRecipients(ctx.user.id)
+    ),
+    add: protectedProcedure
+      .input(z.object({ email: z.string().email(), name: z.string().optional() }))
+      .mutation(({ ctx, input }) =>
+        db.addEmailRecipient(ctx.user.id, input.name || input.email, input.email)
+      ),
+    delete: protectedProcedure
+      .input(z.object({ recipientId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        await db.deleteEmailRecipient(ctx.user.id, input.recipientId);
+        return { success: true };
+      }),
+    update: protectedProcedure
+      .input(z.object({ recipientId: z.number(), name: z.string(), email: z.string().email() }))
+      .mutation(({ ctx, input }) =>
+        db.updateEmailRecipient(input.recipientId, input.name, input.email, ctx.user.id)
+      ),
+    markFrequent: protectedProcedure
+      .input(z.object({ recipientId: z.number() }))
+      .mutation(({ ctx, input }) =>
+        db.markRecipientAsFrequent(input.recipientId, true, ctx.user.id)
+      ),
   }),
 });
 

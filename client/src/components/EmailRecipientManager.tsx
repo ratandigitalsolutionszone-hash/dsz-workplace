@@ -18,7 +18,7 @@ export default function EmailRecipientManager({ onRecipientSelected }: EmailReci
   const [newEmail, setNewEmail] = useState("");
   const [selectedRecipients, setSelectedRecipients] = useState<number[]>([]);
 
-  const { data: recipients, refetch } = trpc.emailRecipients.list.useQuery();
+  const { data: recipients, refetch } = trpc.emailRecipients.getAll.useQuery();
   const addMutation = trpc.emailRecipients.add.useMutation({
     onSuccess: () => {
       toast.success("Recipient added successfully");
@@ -72,9 +72,9 @@ export default function EmailRecipientManager({ onRecipientSelected }: EmailReci
       return;
     }
     if (editingId) {
-      updateMutation.mutate({ recipientId: editingId, recipientName: newName, recipientEmail: newEmail });
+      updateMutation.mutate({ recipientId: editingId, name: newName, email: newEmail });
     } else {
-      addMutation.mutate({ recipientName: newName, recipientEmail: newEmail });
+      addMutation.mutate({ name: newName, email: newEmail });
     }
   };
 
@@ -204,7 +204,6 @@ export default function EmailRecipientManager({ onRecipientSelected }: EmailReci
                   onClick={() =>
                     markFrequentMutation.mutate({
                       recipientId: recipient.id,
-                      isFrequent: !recipient.isFrequent,
                     })
                   }
                   className={recipient.isFrequent ? "text-yellow-500" : "text-gray-400"}

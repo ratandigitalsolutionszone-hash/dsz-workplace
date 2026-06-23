@@ -16,7 +16,7 @@ export default function ReportsPage() {
   const [, setLocation] = useLocation();
   const [isCreating, setIsCreating] = useState(false);
 
-  const { data: reports, refetch } = trpc.reports.list.useQuery(undefined, {
+  const { data: reports, refetch } = trpc.reports.getAll.useQuery(undefined, {
     enabled: !!user,
   });
 
@@ -55,7 +55,7 @@ export default function ReportsPage() {
     createReportMutation.mutate({
       reportDate: new Date(formData.reportDate),
       tasksCompleted: formData.tasksCompleted,
-      hoursWorked: formData.hoursWorked ? parseFloat(formData.hoursWorked) : undefined,
+      hoursWorked: formData.hoursWorked || undefined,
       notes: formData.notes,
     });
   };

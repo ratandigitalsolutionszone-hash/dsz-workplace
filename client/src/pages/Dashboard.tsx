@@ -19,19 +19,19 @@ export default function Dashboard() {
     enabled: !!user,
   });
 
-  const { data: reports } = trpc.reports.list.useQuery(undefined, {
+  const { data: reports } = trpc.reports.getAll.useQuery(undefined, {
     enabled: !!user,
   });
 
-  const { data: notices } = trpc.notices.list.useQuery(undefined, {
+  const { data: notices } = trpc.notices.getAll.useQuery(undefined, {
     enabled: !!user,
   });
 
-  const { data: meetings } = trpc.meetings.list.useQuery(undefined, {
+  const { data: meetings } = trpc.meetings.getAll.useQuery(undefined, {
     enabled: !!user,
   });
 
-  const { data: tasks } = trpc.tasks.list.useQuery(undefined, {
+  const { data: tasks } = trpc.tasks.getAll.useQuery(undefined, {
     enabled: !!user,
   });
 

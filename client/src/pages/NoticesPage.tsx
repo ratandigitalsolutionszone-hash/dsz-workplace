@@ -16,7 +16,7 @@ export default function NoticesPage() {
   const [, setLocation] = useLocation();
   const [isCreating, setIsCreating] = useState(false);
 
-  const { data: notices, refetch } = trpc.notices.list.useQuery(undefined, {
+  const { data: notices, refetch } = trpc.notices.getAll.useQuery(undefined, {
     enabled: !!user,
   });
 

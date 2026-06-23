@@ -17,7 +17,7 @@ export default function MeetingsPage() {
   const [isCreating, setIsCreating] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
 
-  const { data: meetings, refetch } = trpc.meetings.list.useQuery(undefined, {
+  const { data: meetings, refetch } = trpc.meetings.getAll.useQuery(undefined, {
     enabled: !!user,
   });
 

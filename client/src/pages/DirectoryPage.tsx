@@ -13,7 +13,7 @@ function DirectoryPageContent() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState<string | null>(null);
 
-  const { data: employees, isLoading } = trpc.directory.list.useQuery();
+  const { data: employees, isLoading } = trpc.directory.getAllEmployees.useQuery();
 
   const filteredEmployees = useMemo(() => {
     if (!employees) return [];

@@ -25,7 +25,7 @@ export default function TasksPage() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>("all");
 
-  const { data: tasks, refetch } = trpc.tasks.list.useQuery(undefined, {
+  const { data: tasks, refetch } = trpc.tasks.getAll.useQuery(undefined, {
     enabled: !!user,
   });
 
