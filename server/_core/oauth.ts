@@ -44,16 +44,11 @@ export function registerOAuthRoutes(app: Express) {
         return;
       }
 
-      // Get the origin from the request
-      const protocol = req.secure ? 'https' : 'http';
-      const host = req.headers.host || 'localhost:3000';
-      const origin = `${protocol}://${host}`;
-      
       // Exchange code for tokens
-      const tokenData = await exchangeCodeForToken(code, userId, origin);
+      const tokenData = await exchangeCodeForToken(code, userId);
       
       // Get Gmail profile email
-      const profile = await getGmailProfile(tokenData.accessToken, origin);
+      const profile = await getGmailProfile(tokenData.accessToken);
       const gmailEmail = profile?.email || "unknown@gmail.com";
       
       // Save tokens to database
