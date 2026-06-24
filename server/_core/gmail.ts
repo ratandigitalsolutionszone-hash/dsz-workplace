@@ -2,15 +2,27 @@ import { google } from "googleapis";
 import { ENV } from "./env";
 import { TRPCError } from "@trpc/server";
 
-// Create a single OAuth2 client with development redirect URI
-// The redirect URI should match what's configured in Google Cloud Console
-const oauth2Client = new google.auth.OAuth2(
-  ENV.gmailClientId,
-  ENV.gmailClientSecret,
-  "http://localhost:3000/api/oauth/gmail/callback"
-);
+// Helper to get the correct redirect URI based on environment
+function getRedirectUri(): string {
+  // In production, use the configured domain
+  if (process.env.NODE_ENV === "production") {
+    return "https://dszworkspace-fkysrost.manus.space/api/oauth/gmail/callback";
+  }
+  // In development, use localhost
+  return "http://localhost:3000/api/oauth/gmail/callback";
+}
+
+// Create OAuth2 client factory function to ensure fresh clients
+function createOAuth2Client(): InstanceType<typeof google.auth.OAuth2> {
+  return new google.auth.OAuth2(
+    ENV.gmailClientId,
+    ENV.gmailClientSecret,
+    getRedirectUri()
+  );
+}
 
 export function getGmailAuthUrl(userId: number): string {
+  const oauth2Client = createOAuth2Client();
   const scopes = ["https://www.googleapis.com/auth/gmail.send"];
   const state = Buffer.from(JSON.stringify({ userId, timestamp: Date.now() })).toString("base64");
   
@@ -26,6 +38,7 @@ export function getGmailAuthUrl(userId: number): string {
 
 export async function exchangeCodeForToken(code: string, userId: number) {
   try {
+    const oauth2Client = createOAuth2Client();
     const { tokens } = await oauth2Client.getToken(code);
     
     if (!tokens.access_token) {
@@ -58,6 +71,7 @@ export async function refreshAccessToken(
       return null;
     }
 
+    const oauth2Client = createOAuth2Client();
     oauth2Client.setCredentials({ refresh_token: refreshToken });
     const { credentials } = await oauth2Client.refreshAccessToken();
     
@@ -83,16 +97,10 @@ export async function sendEmailViaGmail(
   htmlContent: string
 ): Promise<{ success: boolean; messageId?: string; error?: string }> {
   try {
-    // Create a fresh OAuth2 client for this request to avoid credential conflicts
-    const client = new google.auth.OAuth2(
-      ENV.gmailClientId,
-      ENV.gmailClientSecret,
-      "http://localhost:3000/api/oauth/gmail/callback"
-    );
+    const oauth2Client = createOAuth2Client();
+    oauth2Client.setCredentials({ access_token: accessToken });
     
-    client.setCredentials({ access_token: accessToken });
-    
-    const gmail = google.gmail({ version: "v1", auth: client });
+    const gmail = google.gmail({ version: "v1", auth: oauth2Client });
 
     const emailContent = [
       `To: ${to.join(", ")}`,
@@ -127,16 +135,10 @@ export async function sendEmailViaGmail(
 
 export async function getGmailProfile(accessToken: string): Promise<{ email: string } | null> {
   try {
-    // Create a fresh OAuth2 client for this request
-    const client = new google.auth.OAuth2(
-      ENV.gmailClientId,
-      ENV.gmailClientSecret,
-      "http://localhost:3000/api/oauth/gmail/callback"
-    );
+    const oauth2Client = createOAuth2Client();
+    oauth2Client.setCredentials({ access_token: accessToken });
     
-    client.setCredentials({ access_token: accessToken });
-    
-    const gmail = google.gmail({ version: "v1", auth: client });
+    const gmail = google.gmail({ version: "v1", auth: oauth2Client });
     const profile = await gmail.users.getProfile({ userId: "me" });
 
     return {
