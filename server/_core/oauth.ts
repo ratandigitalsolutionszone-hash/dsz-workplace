@@ -45,7 +45,9 @@ export function registerOAuthRoutes(app: Express) {
       }
 
       // Get the origin from the request
-      const origin = `${req.protocol}://${req.get('host')}`;
+      const protocol = req.secure ? 'https' : 'http';
+      const host = req.headers.host || 'localhost:3000';
+      const origin = `${protocol}://${host}`;
       
       // Exchange code for tokens
       const tokenData = await exchangeCodeForToken(code, userId, origin);

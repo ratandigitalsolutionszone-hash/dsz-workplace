@@ -247,7 +247,9 @@ export const appRouter = router({
           const { sendEmailViaGmail, refreshAccessToken } = require("./_core/gmail");
           
           // Get the origin from the request
-          const origin = `${ctx.req.protocol}://${ctx.req.get('host')}`;
+          const protocol = ctx.req.secure ? 'https' : 'http';
+          const host = ctx.req.headers.host || 'localhost:3000';
+          const origin = `${protocol}://${host}`;
           
           // Check if token needs refresh
           let accessToken = gmailToken.accessToken;
