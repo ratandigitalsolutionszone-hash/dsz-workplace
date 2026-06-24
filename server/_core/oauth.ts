@@ -44,15 +44,18 @@ export function registerOAuthRoutes(app: Express) {
         return;
       }
 
+      // Get the origin from the request
+      const origin = `${req.protocol}://${req.get('host')}`;
+      
       // Exchange code for tokens
-      const tokenData = await exchangeCodeForToken(code, userId);
+      const tokenData = await exchangeCodeForToken(code, userId, origin);
       
       // Get Gmail profile email
-      const profile = await getGmailProfile(tokenData.accessToken);
+      const profile = await getGmailProfile(tokenData.accessToken, origin);
       const gmailEmail = profile?.email || "unknown@gmail.com";
       
       // Save tokens to database
-      await db.saveGmailToken(userId, tokenData.accessToken, tokenData.refreshToken, gmailEmail);
+      await db.saveGmailToken(userId, gmailEmail, tokenData.accessToken, tokenData.refreshToken, tokenData.expiresAt);
       
       res.redirect(302, "/?gmail_connected=true");
     } catch (error) {

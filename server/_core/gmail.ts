@@ -2,25 +2,34 @@ import { google } from "googleapis";
 import { ENV } from "./env";
 import { TRPCError } from "@trpc/server";
 
-// Determine the correct redirect URI based on environment
-const getRedirectUri = () => {
-  // In production, use the actual application domain
+// Helper to create OAuth2 client with dynamic redirect URI
+function createOAuthClient(redirectUri: string) {
+  return new google.auth.OAuth2(
+    ENV.gmailClientId,
+    ENV.gmailClientSecret,
+    redirectUri
+  );
+}
+
+// Helper to determine redirect URI based on environment
+function getRedirectUri(origin?: string): string {
+  if (origin) {
+    // Use the actual request origin if provided
+    return `${origin}/api/oauth/gmail/callback`;
+  }
+  
+  // Fallback based on environment
   if (ENV.isProduction) {
-    // Get the host from the request context when available
-    // For now, construct from environment or use a fallback
     return "https://dszworkspace-fkysrost.manus.space/api/oauth/gmail/callback";
   }
-  // In development, use localhost
+  
   return "http://localhost:3000/api/oauth/gmail/callback";
-};
+}
 
-const oauth2Client = new google.auth.OAuth2(
-  ENV.gmailClientId,
-  ENV.gmailClientSecret,
-  getRedirectUri()
-);
-
-export function getGmailAuthUrl(userId: number): string {
+export function getGmailAuthUrl(userId: number, origin?: string): string {
+  const redirectUri = getRedirectUri(origin);
+  const oauth2Client = createOAuthClient(redirectUri);
+  
   const scopes = ["https://www.googleapis.com/auth/gmail.send"];
   const state = Buffer.from(JSON.stringify({ userId, timestamp: Date.now() })).toString("base64");
   
@@ -34,8 +43,11 @@ export function getGmailAuthUrl(userId: number): string {
   return authUrl;
 }
 
-export async function exchangeCodeForToken(code: string, userId: number) {
+export async function exchangeCodeForToken(code: string, userId: number, origin?: string) {
   try {
+    const redirectUri = getRedirectUri(origin);
+    const oauth2Client = createOAuthClient(redirectUri);
+    
     const { tokens } = await oauth2Client.getToken(code);
     
     if (!tokens.access_token) {
@@ -60,7 +72,8 @@ export async function exchangeCodeForToken(code: string, userId: number) {
 }
 
 export async function refreshAccessToken(
-  refreshToken: string
+  refreshToken: string,
+  origin?: string
 ): Promise<{ accessToken: string; expiresAt: Date } | null> {
   try {
     if (!refreshToken) {
@@ -68,6 +81,9 @@ export async function refreshAccessToken(
       return null;
     }
 
+    const redirectUri = getRedirectUri(origin);
+    const oauth2Client = createOAuthClient(redirectUri);
+    
     oauth2Client.setCredentials({ refresh_token: refreshToken });
     const { credentials } = await oauth2Client.refreshAccessToken();
     
@@ -90,9 +106,13 @@ export async function sendEmailViaGmail(
   accessToken: string,
   to: string[],
   subject: string,
-  htmlContent: string
+  htmlContent: string,
+  origin?: string
 ): Promise<{ success: boolean; messageId?: string; error?: string }> {
   try {
+    const redirectUri = getRedirectUri(origin);
+    const oauth2Client = createOAuthClient(redirectUri);
+    
     oauth2Client.setCredentials({ access_token: accessToken });
     
     const gmail = google.gmail({ version: "v1", auth: oauth2Client });
@@ -128,8 +148,11 @@ export async function sendEmailViaGmail(
   }
 }
 
-export async function getGmailProfile(accessToken: string): Promise<{ email: string } | null> {
+export async function getGmailProfile(accessToken: string, origin?: string): Promise<{ email: string } | null> {
   try {
+    const redirectUri = getRedirectUri(origin);
+    const oauth2Client = createOAuthClient(redirectUri);
+    
     oauth2Client.setCredentials({ access_token: accessToken });
     
     const gmail = google.gmail({ version: "v1", auth: oauth2Client });

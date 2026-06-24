@@ -246,12 +246,15 @@ export const appRouter = router({
           // Send via Gmail API
           const { sendEmailViaGmail, refreshAccessToken } = require("./_core/gmail");
           
+          // Get the origin from the request
+          const origin = `${ctx.req.protocol}://${ctx.req.get('host')}`;
+          
           // Check if token needs refresh
           let accessToken = gmailToken.accessToken;
           if (gmailToken.expiresAt && new Date() > gmailToken.expiresAt) {
             // Token has expired, try to refresh it
             if (gmailToken.refreshToken) {
-              const refreshResult = await refreshAccessToken(gmailToken.refreshToken);
+              const refreshResult = await refreshAccessToken(gmailToken.refreshToken, origin);
               if (refreshResult) {
                 accessToken = refreshResult.accessToken;
                 // Update the token in database
@@ -268,7 +271,8 @@ export const appRouter = router({
             accessToken,
             input.recipients,
             input.subject,
-            emailBody
+            emailBody,
+            origin
           );
 
           // Check if email was actually sent
