@@ -131,7 +131,9 @@
 - [x] Verify token persistence after OAuth callback (SUCCESS)
 - [x] Add token refresh logic for expired Gmail access tokens
 - [x] Fix Gmail API email sending with proper authentication
-- [ ] Test authenticated sendReport with connected Gmail account (ready for testing)
+- [x] Test authenticated sendReport with connected Gmail account (SUCCESS)
+- [x] Change "Send Report" button color to blue
+- [x] Improve email formatting to structured HTML with proper line breaks and spacing
 - [ ] Verify email history records 'sent' only after confirmed delivery
 - [ ] Test failure cases (missing connection, invalid token, API failure)
 - [ ] Verify error toasts and 'failed' status in email history

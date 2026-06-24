@@ -238,10 +238,47 @@ export const appRouter = router({
             throw new Error("Report not found");
           }
 
-          // Compose email content
-          const separator = "=".repeat(50);
-          const reportDate = new Date(report.reportDate).toLocaleDateString();
-          const emailBody = `Daily Report Summary\n${separator}\n\nEmployee: ${ctx.user.name}\nReport Date: ${reportDate}\n\nTasks Completed:\n${report.tasksCompleted}\n\n${report.hoursWorked ? `Hours Worked: ${report.hoursWorked}\n` : ""}${report.notes ? `Notes:\n${report.notes}\n` : ""}\n${separator}\nSent via DSZ Workspace`;
+          // Compose email content with HTML formatting
+          const reportDate = new Date(report.reportDate).toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' });
+          
+          const emailBody = `
+            <html>
+              <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+                <div style="max-width: 600px; margin: 0 auto;">
+                  <h2 style="color: #500151; border-bottom: 2px solid #500151; padding-bottom: 10px;">
+                    Today's Task Update ${reportDate} - ${ctx.user.name}
+                  </h2>
+                  
+                  <p>Hello there,</p>
+                  
+                  <p>Today we have completed the following tasks:</p>
+                  
+                  <div style="background-color: #f9f7fc; padding: 15px; border-left: 4px solid #500151; margin: 15px 0;">
+                    <p><strong>Task Summary:</strong></p>
+                    <p style="white-space: pre-wrap; margin: 10px 0;">${report.tasksCompleted}</p>
+                  </div>
+                  
+                  ${report.hoursWorked ? `
+                  <div style="margin: 15px 0;">
+                    <p><strong>Hours Worked:</strong> ${report.hoursWorked}</p>
+                  </div>
+                  ` : ''}
+                  
+                  ${report.notes ? `
+                  <div style="margin: 15px 0;">
+                    <p><strong>Notes:</strong></p>
+                    <p style="white-space: pre-wrap; margin: 10px 0;">${report.notes}</p>
+                  </div>
+                  ` : ''}
+                  
+                  <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
+                  <p style="font-size: 12px; color: #666; text-align: center;">
+                    Sent via DSZ Workspace
+                  </p>
+                </div>
+              </body>
+            </html>
+          `.trim();
 
           // Send via Gmail API
           const { sendEmailViaGmail, refreshAccessToken } = require("./_core/gmail");

@@ -67,7 +67,7 @@ export default function SendReportDialog({
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button className="gap-2 bg-[#500151] hover:bg-[#6b1a6b]">
+        <Button className="gap-2 bg-blue-600 hover:bg-blue-700">
           <Send className="w-4 h-4" />
           Send Report
         </Button>
@@ -166,7 +166,7 @@ export default function SendReportDialog({
             <Button
               onClick={handleSendReport}
               disabled={sendMutation.isPending || selectedRecipients.length === 0}
-              className="gap-2 bg-[#FF0000] hover:bg-[#cc0000]"
+              className="gap-2 bg-blue-600 hover:bg-blue-700"
             >
               <Send className="w-4 h-4" />
               {sendMutation.isPending ? "Sending..." : "Send Report"}
