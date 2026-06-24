@@ -244,9 +244,28 @@ export const appRouter = router({
           const emailBody = `Daily Report Summary\n${separator}\n\nEmployee: ${ctx.user.name}\nReport Date: ${reportDate}\n\nTasks Completed:\n${report.tasksCompleted}\n\n${report.hoursWorked ? `Hours Worked: ${report.hoursWorked}\n` : ""}${report.notes ? `Notes:\n${report.notes}\n` : ""}\n${separator}\nSent via DSZ Workspace`;
 
           // Send via Gmail API
-          const { sendEmailViaGmail } = require("./_core/gmail");
+          const { sendEmailViaGmail, refreshAccessToken } = require("./_core/gmail");
+          
+          // Check if token needs refresh
+          let accessToken = gmailToken.accessToken;
+          if (gmailToken.expiresAt && new Date() > gmailToken.expiresAt) {
+            // Token has expired, try to refresh it
+            if (gmailToken.refreshToken) {
+              const refreshResult = await refreshAccessToken(gmailToken.refreshToken);
+              if (refreshResult) {
+                accessToken = refreshResult.accessToken;
+                // Update the token in database
+                await db.updateGmailAccessToken(ctx.user.id, refreshResult.accessToken, refreshResult.expiresAt);
+              } else {
+                throw new Error("Gmail token expired and could not be refreshed. Please reconnect your Gmail account.");
+              }
+            } else {
+              throw new Error("Gmail token expired and no refresh token available. Please reconnect your Gmail account.");
+            }
+          }
+          
           const sendResult = await sendEmailViaGmail(
-            gmailToken.accessToken,
+            accessToken,
             input.recipients,
             input.subject,
             emailBody

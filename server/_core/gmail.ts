@@ -59,6 +59,33 @@ export async function exchangeCodeForToken(code: string, userId: number) {
   }
 }
 
+export async function refreshAccessToken(
+  refreshToken: string
+): Promise<{ accessToken: string; expiresAt: Date } | null> {
+  try {
+    if (!refreshToken) {
+      console.error("[Gmail OAuth] No refresh token available");
+      return null;
+    }
+
+    oauth2Client.setCredentials({ refresh_token: refreshToken });
+    const { credentials } = await oauth2Client.refreshAccessToken();
+    
+    if (!credentials.access_token) {
+      console.error("[Gmail OAuth] Failed to get new access token");
+      return null;
+    }
+
+    return {
+      accessToken: credentials.access_token,
+      expiresAt: credentials.expiry_date ? new Date(credentials.expiry_date) : new Date(Date.now() + 3600000),
+    };
+  } catch (error) {
+    console.error("[Gmail OAuth] Error refreshing token:", error);
+    return null;
+  }
+}
+
 export async function sendEmailViaGmail(
   accessToken: string,
   to: string[],

@@ -127,9 +127,11 @@
 - [x] Configure Gmail OAuth Client ID and Client Secret
 - [x] Validate Gmail OAuth credentials with unit tests
 - [x] Fix Gmail OAuth redirect URI to use correct application domain
-- [ ] Perform logged-in Gmail OAuth connection test through the UI
-- [ ] Verify token persistence after OAuth callback
-- [ ] Test authenticated sendReport with connected Gmail account
+- [x] Perform logged-in Gmail OAuth connection test through the UI (SUCCESS)
+- [x] Verify token persistence after OAuth callback (SUCCESS)
+- [x] Add token refresh logic for expired Gmail access tokens
+- [x] Fix Gmail API email sending with proper authentication
+- [ ] Test authenticated sendReport with connected Gmail account (ready for testing)
 - [ ] Verify email history records 'sent' only after confirmed delivery
 - [ ] Test failure cases (missing connection, invalid token, API failure)
 - [ ] Verify error toasts and 'failed' status in email history
