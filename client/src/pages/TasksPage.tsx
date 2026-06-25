@@ -194,13 +194,8 @@ export default function TasksPage() {
         {/* Enhanced Header */}
         <div className="flex items-center justify-between">
           <div>
-            <div className="flex items-center gap-3">
-              <div className="w-1 h-10 bg-gradient-to-b from-[#d946ef] to-[#a855f7] rounded-full"></div>
-              <div>
-                <h1 className="text-4xl font-black bg-gradient-to-r from-[#d946ef] to-[#a855f7] bg-clip-text text-transparent">Client Tasks</h1>
-                <p className="text-muted-foreground mt-1">Track and manage client requests and deliverables</p>
-              </div>
-            </div>
+            <h1 className="text-4xl font-bold text-black">Client Tasks</h1>
+            <p className="text-muted-foreground mt-2">Track and manage client requests and deliverables</p>
           </div>
           <Button 
             onClick={() => {

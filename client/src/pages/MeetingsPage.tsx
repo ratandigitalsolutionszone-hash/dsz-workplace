@@ -143,13 +143,8 @@ export default function MeetingsPage() {
         {/* Enhanced Header */}
         <div className="flex items-center justify-between">
           <div>
-            <div className="flex items-center gap-3">
-              <div className="w-1 h-10 bg-gradient-to-b from-[#0066cc] to-[#0052a3] rounded-full"></div>
-              <div>
-                <h1 className="text-4xl font-black bg-gradient-to-r from-[#0066cc] to-[#0052a3] bg-clip-text text-transparent">Meetings</h1>
-                <p className="text-muted-foreground mt-1">Schedule and manage your meetings</p>
-              </div>
-            </div>
+            <h1 className="text-4xl font-bold text-black">Meetings</h1>
+            <p className="text-muted-foreground mt-2">Schedule and manage your meetings</p>
           </div>
           <Button 
             onClick={() => {

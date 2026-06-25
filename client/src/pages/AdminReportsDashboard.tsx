@@ -77,15 +77,10 @@ function AdminReportsDashboardContent() {
     <div className="space-y-6">
       {/* Enhanced Header */}
       <div>
-        <div className="flex items-center gap-3">
-          <div className="w-1 h-10 bg-gradient-to-b from-[#d946ef] to-[#a855f7] rounded-full"></div>
-          <div>
-            <h1 className="text-4xl font-black bg-gradient-to-r from-[#d946ef] to-[#a855f7] bg-clip-text text-transparent">Reports Monitor</h1>
-            <p className="text-muted-foreground mt-1">
-              Monitor and review all employee daily work reports
-            </p>
-          </div>
-        </div>
+        <h1 className="text-4xl font-bold text-black">Reports Monitor</h1>
+        <p className="text-muted-foreground mt-2">
+          Monitor and review all employee daily work reports
+        </p>
       </div>
 
       {/* Stats Cards */}

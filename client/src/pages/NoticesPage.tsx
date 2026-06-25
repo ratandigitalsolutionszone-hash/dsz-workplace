@@ -150,13 +150,8 @@ export default function NoticesPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <div className="flex items-center gap-3">
-              <div className="w-1 h-10 bg-gradient-to-b from-[#500151] to-[#6b1a6b] rounded-full"></div>
-              <div>
-                <h1 className="text-4xl font-black bg-gradient-to-r from-[#500151] to-[#6b1a6b] bg-clip-text text-transparent">Company Notices</h1>
-                <p className="text-muted-foreground mt-1">Important announcements and updates for all employees</p>
-              </div>
-            </div>
+            <h1 className="text-4xl font-bold text-black">Company Notices</h1>
+            <p className="text-muted-foreground mt-2">Important announcements and updates for all employees</p>
           </div>
           {isAdmin && (
             <Button 

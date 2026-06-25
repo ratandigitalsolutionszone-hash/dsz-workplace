@@ -51,15 +51,10 @@ function DirectoryPageContent() {
     <div className="space-y-6">
       {/* Enhanced Header */}
       <div>
-        <div className="flex items-center gap-3">
-          <div className="w-1 h-10 bg-gradient-to-b from-[#0066cc] to-[#0052a3] rounded-full"></div>
-          <div>
-            <h1 className="text-4xl font-black bg-gradient-to-r from-[#0066cc] to-[#0052a3] bg-clip-text text-transparent">Employee Directory</h1>
-            <p className="text-muted-foreground mt-1">
-              Browse and view profiles of all company employees
-            </p>
-          </div>
-        </div>
+        <h1 className="text-4xl font-bold text-black">Employee Directory</h1>
+        <p className="text-muted-foreground mt-2">
+          Browse and view profiles of all company employees
+        </p>
       </div>
 
       {/* Search and Filters */}
