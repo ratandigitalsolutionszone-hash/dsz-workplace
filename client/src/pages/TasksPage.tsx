@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/select";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Trash2, Edit2 } from "lucide-react";
+import { Trash2, Edit2, CheckCircle2, Clock, AlertCircle, Briefcase } from "lucide-react";
 
 export default function TasksPage() {
   const { user, loading } = useAuth();
@@ -103,7 +103,7 @@ export default function TasksPage() {
         description: formData.description,
         priority: formData.priority,
         dueDate: formData.dueDate ? new Date(formData.dueDate) : undefined,
-      });
+      } as any);
     }
   };
 
@@ -148,56 +148,81 @@ export default function TasksPage() {
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case "high":
-        return "bg-red-100 text-red-800";
+        return "bg-red-100 text-red-800 border-l-4 border-red-500";
       case "medium":
-        return "bg-yellow-100 text-yellow-800";
+        return "bg-yellow-100 text-yellow-800 border-l-4 border-yellow-500";
       case "low":
-        return "bg-green-100 text-green-800";
+        return "bg-green-100 text-green-800 border-l-4 border-green-500";
       default:
         return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case "completed":
+        return <CheckCircle2 className="w-5 h-5 text-green-600" />;
+      case "in_progress":
+        return <Clock className="w-5 h-5 text-blue-600" />;
+      case "pending":
+        return <AlertCircle className="w-5 h-5 text-gray-600" />;
+      case "cancelled":
+        return <AlertCircle className="w-5 h-5 text-red-600" />;
+      default:
+        return null;
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case "completed":
-        return "bg-green-100 text-green-800";
+        return "bg-green-50 border-l-4 border-l-green-500";
       case "in_progress":
-        return "bg-blue-100 text-blue-800";
+        return "bg-blue-50 border-l-4 border-l-blue-500";
       case "pending":
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-50 border-l-4 border-l-gray-400";
       case "cancelled":
-        return "bg-red-100 text-red-800";
+        return "bg-red-50 border-l-4 border-l-red-500";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-white";
     }
   };
 
   return (
     <DashboardLayout>
       <div className="space-y-6">
+        {/* Enhanced Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold">Client Tasks</h1>
-            <p className="text-muted-foreground mt-2">Track and manage client requests</p>
+            <div className="flex items-center gap-3">
+              <div className="w-1 h-10 bg-gradient-to-b from-[#d946ef] to-[#a855f7] rounded-full"></div>
+              <div>
+                <h1 className="text-4xl font-black bg-gradient-to-r from-[#d946ef] to-[#a855f7] bg-clip-text text-transparent">Client Tasks</h1>
+                <p className="text-muted-foreground mt-1">Track and manage client requests and deliverables</p>
+              </div>
+            </div>
           </div>
-          <Button onClick={() => {
-            setEditingId(null);
-            resetForm();
-            setIsCreating(!isCreating);
-          }}>
+          <Button 
+            onClick={() => {
+              setEditingId(null);
+              resetForm();
+              setIsCreating(!isCreating);
+            }}
+            className="bg-purple-600 hover:bg-purple-700"
+          >
             {isCreating ? "Cancel" : "New Task"}
           </Button>
         </div>
 
+        {/* Create/Edit Form */}
         {isCreating && (
-          <Card className="p-6">
-            <h2 className="text-xl font-semibold mb-4">
+          <Card className="p-6 border-l-4 border-l-purple-600 bg-gradient-to-br from-purple-50 to-transparent">
+            <h2 className="text-xl font-semibold mb-4 text-purple-900">
               {editingId ? "Edit Task" : "Create New Task"}
             </h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <Label htmlFor="clientName">Client Name</Label>
+                <Label htmlFor="clientName" className="text-purple-900 font-semibold">Client Name</Label>
                 <Input
                   id="clientName"
                   value={formData.clientName}
@@ -205,33 +230,36 @@ export default function TasksPage() {
                   placeholder="e.g., Acme Corporation"
                   required
                   disabled={!!editingId}
+                  className="border-purple-200 focus:border-purple-500"
                 />
               </div>
               <div>
-                <Label htmlFor="title">Task Title</Label>
+                <Label htmlFor="title" className="text-purple-900 font-semibold">Task Title</Label>
                 <Input
                   id="title"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   placeholder="e.g., Website Redesign"
                   required
+                  className="border-purple-200 focus:border-purple-500"
                 />
               </div>
               <div>
-                <Label htmlFor="description">Description</Label>
+                <Label htmlFor="description" className="text-purple-900 font-semibold">Description</Label>
                 <Textarea
                   id="description"
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Task details..."
                   rows={4}
+                  className="border-purple-200 focus:border-purple-500"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="priority">Priority</Label>
+                  <Label htmlFor="priority" className="text-purple-900 font-semibold">Priority</Label>
                   <Select value={formData.priority} onValueChange={(value) => setFormData({ ...formData, priority: value as any })}>
-                    <SelectTrigger>
+                    <SelectTrigger className="border-purple-200">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -242,45 +270,54 @@ export default function TasksPage() {
                   </Select>
                 </div>
                 <div>
-                  <Label htmlFor="dueDate">Due Date</Label>
+                  <Label htmlFor="dueDate" className="text-purple-900 font-semibold">Due Date</Label>
                   <Input
                     id="dueDate"
                     type="date"
                     value={formData.dueDate}
                     onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
+                    className="border-purple-200 focus:border-purple-500"
                   />
                 </div>
               </div>
-              <Button type="submit" disabled={createTaskMutation.isPending || updateTaskMutation.isPending}>
+              <Button 
+                type="submit" 
+                disabled={createTaskMutation.isPending || updateTaskMutation.isPending}
+                className="bg-purple-600 hover:bg-purple-700"
+              >
                 {editingId ? "Update Task" : "Create Task"}
               </Button>
             </form>
           </Card>
         )}
 
-        {/* Filter */}
-        <div className="flex gap-2">
+        {/* Filter Buttons */}
+        <div className="flex gap-2 flex-wrap">
           <Button
             variant={filterStatus === "all" ? "default" : "outline"}
             onClick={() => setFilterStatus("all")}
+            className={filterStatus === "all" ? "bg-purple-600 hover:bg-purple-700" : ""}
           >
-            All
+            All Tasks
           </Button>
           <Button
             variant={filterStatus === "pending" ? "default" : "outline"}
             onClick={() => setFilterStatus("pending")}
+            className={filterStatus === "pending" ? "bg-gray-600 hover:bg-gray-700" : ""}
           >
             Pending
           </Button>
           <Button
             variant={filterStatus === "in_progress" ? "default" : "outline"}
             onClick={() => setFilterStatus("in_progress")}
+            className={filterStatus === "in_progress" ? "bg-blue-600 hover:bg-blue-700" : ""}
           >
             In Progress
           </Button>
           <Button
             variant={filterStatus === "completed" ? "default" : "outline"}
             onClick={() => setFilterStatus("completed")}
+            className={filterStatus === "completed" ? "bg-green-600 hover:bg-green-700" : ""}
           >
             Completed
           </Button>
@@ -290,33 +327,43 @@ export default function TasksPage() {
         <div className="space-y-4">
           {filteredTasks.length > 0 ? (
             filteredTasks.map(task => (
-              <Card key={task.id} className="p-6">
+              <Card 
+                key={task.id} 
+                className={`p-6 hover:shadow-lg transition-shadow ${getStatusColor(task.status)}`}
+              >
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <h3 className="text-lg font-semibold">{task.title}</h3>
-                      <span className={`text-xs px-2 py-1 rounded ${getPriorityColor(task.priority)}`}>
-                        {task.priority}
-                      </span>
-                      <span className={`text-xs px-2 py-1 rounded ${getStatusColor(task.status)}`}>
-                        {task.status.replace("_", " ")}
+                    <div className="flex items-center gap-3 mb-3">
+                      {getStatusIcon(task.status)}
+                      <h3 className="text-lg font-bold text-gray-900">{task.title}</h3>
+                      <span className={`text-xs px-3 py-1 rounded-full font-semibold ${getPriorityColor(task.priority)}`}>
+                        {task.priority.toUpperCase()}
                       </span>
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                      Client: {task.clientName}
-                    </p>
-                    {task.description && (
-                      <p className="text-sm mt-2">{task.description}</p>
-                    )}
-                    {task.dueDate && (
-                      <p className="text-sm text-muted-foreground mt-2">
-                        Due: {new Date(task.dueDate).toLocaleDateString()}
-                      </p>
-                    )}
+                    
+                    <div className="space-y-2 mt-3">
+                      <div className="flex items-center gap-2">
+                        <Briefcase className="w-4 h-4 text-purple-600" />
+                        <span className="text-sm font-semibold text-gray-700">{task.clientName}</span>
+                      </div>
+                      
+                      {task.description && (
+                        <p className="text-sm text-gray-700 p-3 bg-white rounded border border-gray-200 mt-2">
+                          {task.description}
+                        </p>
+                      )}
+                      
+                      {task.dueDate && (
+                        <div className="text-sm text-gray-600 mt-2">
+                          <span className="font-semibold">Due:</span> {new Date(task.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex gap-2">
+                  
+                  <div className="flex gap-2 ml-4">
                     <Select value={task.status} onValueChange={(value) => handleStatusChange(task.id, value)}>
-                      <SelectTrigger className="w-32">
+                      <SelectTrigger className="w-32 text-xs">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -330,6 +377,7 @@ export default function TasksPage() {
                       variant="ghost"
                       size="sm"
                       onClick={() => handleEdit(task)}
+                      className="text-purple-600 hover:bg-purple-100"
                     >
                       <Edit2 className="w-4 h-4" />
                     </Button>
@@ -338,6 +386,7 @@ export default function TasksPage() {
                       size="sm"
                       onClick={() => handleDelete(task.id)}
                       disabled={deleteTaskMutation.isPending}
+                      className="text-red-600 hover:bg-red-100"
                     >
                       <Trash2 className="w-4 h-4" />
                     </Button>
@@ -346,8 +395,10 @@ export default function TasksPage() {
               </Card>
             ))
           ) : (
-            <Card className="p-6 text-center">
-              <p className="text-muted-foreground">No tasks found</p>
+            <Card className="p-8 text-center bg-gradient-to-r from-purple-50 to-transparent border-l-4 border-l-purple-300">
+              <Briefcase className="w-12 h-12 text-purple-300 mx-auto mb-3" />
+              <p className="text-gray-600 font-semibold">No tasks found</p>
+              <p className="text-gray-500 text-sm mt-1">Create a new task to get started</p>
             </Card>
           )}
         </div>

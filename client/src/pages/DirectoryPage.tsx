@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { trpc } from "@/lib/trpc";
-import { Mail, MapPin, Briefcase } from "lucide-react";
+import { Mail, MapPin, Briefcase, Users } from "lucide-react";
 import { useState, useMemo } from "react";
 
 function DirectoryPageContent() {
@@ -49,20 +49,26 @@ function DirectoryPageContent() {
 
   return (
     <div className="space-y-6">
+      {/* Enhanced Header */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Employee Directory</h1>
-        <p className="text-muted-foreground mt-2">
-          Browse and view profiles of all company employees
-        </p>
+        <div className="flex items-center gap-3">
+          <div className="w-1 h-10 bg-gradient-to-b from-[#0066cc] to-[#0052a3] rounded-full"></div>
+          <div>
+            <h1 className="text-4xl font-black bg-gradient-to-r from-[#0066cc] to-[#0052a3] bg-clip-text text-transparent">Employee Directory</h1>
+            <p className="text-muted-foreground mt-1">
+              Browse and view profiles of all company employees
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Search and Filters */}
-      <div className="space-y-4">
+      <div className="space-y-4 bg-gradient-to-r from-blue-50 to-transparent p-4 rounded-lg border border-blue-200">
         <Input
           placeholder="Search by name, email, position, or department..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full"
+          className="w-full border-blue-200 focus:border-blue-500"
         />
 
         <div className="flex flex-wrap gap-2">
@@ -70,6 +76,7 @@ function DirectoryPageContent() {
             variant={selectedDepartment === null ? "default" : "outline"}
             onClick={() => setSelectedDepartment(null)}
             size="sm"
+            className={selectedDepartment === null ? "bg-blue-600 hover:bg-blue-700" : ""}
           >
             All Departments
           </Button>
@@ -79,6 +86,7 @@ function DirectoryPageContent() {
               variant={selectedDepartment === dept ? "default" : "outline"}
               onClick={() => setSelectedDepartment(dept)}
               size="sm"
+              className={selectedDepartment === dept ? "bg-blue-600 hover:bg-blue-700" : ""}
             >
               {dept || "Unassigned"}
             </Button>
@@ -87,91 +95,84 @@ function DirectoryPageContent() {
       </div>
 
       {/* Employee Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredEmployees.length > 0 ? (
           filteredEmployees.map((emp) => (
-            <Card key={emp.id} className="p-6 hover:shadow-lg transition-shadow">
+            <Card key={emp.id} className="p-6 hover:shadow-xl transition-all border-l-4 border-l-blue-500 bg-gradient-to-br from-blue-50 to-transparent">
               <div className="space-y-4">
-                {/* Avatar */}
+                {/* Avatar and Name */}
                 <div className="flex items-start justify-between">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
-                    <span className="text-white font-bold text-lg">
+                  <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-lg">
+                    <span className="text-white font-bold text-xl">
                       {emp.name?.charAt(0).toUpperCase() || "?"}
                     </span>
                   </div>
-                  {emp.id === user?.id && (
-                    <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">
-                      You
-                    </span>
+                  <div className="text-right">
+                    <p className="text-xs font-semibold text-blue-600 bg-blue-100 px-2 py-1 rounded-full">
+                      {emp.position || "Employee"}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Name and Title */}
+                <div className="border-b border-blue-200 pb-3">
+                  <h3 className="text-lg font-bold text-gray-900">{emp.name}</h3>
+                  {emp.position && (
+                    <p className="text-sm font-semibold text-blue-700 flex items-center gap-1 mt-1">
+                      <Briefcase className="w-4 h-4" />
+                      {emp.position}
+                    </p>
                   )}
                 </div>
 
-                {/* Name */}
-                <div>
-                  <h3 className="font-semibold text-lg">{emp.name || "Unknown"}</h3>
-                  {emp.position && (
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
-                      <Briefcase className="h-4 w-4" />
-                      {emp.position}
+                {/* Contact Information */}
+                <div className="space-y-2">
+                  {emp.email && (
+                    <a
+                      href={`mailto:${emp.email}`}
+                      className="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-2 font-medium"
+                    >
+                      <Mail className="w-4 h-4" />
+                      {emp.email}
+                    </a>
+                  )}
+                  {emp.department && (
+                    <div className="text-sm text-gray-700 flex items-center gap-2">
+                      <MapPin className="w-4 h-4 text-gray-500" />
+                      <span className="font-semibold">{emp.department}</span>
                     </div>
                   )}
                 </div>
 
-                {/* Department */}
-                {emp.department && (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <MapPin className="h-4 w-4" />
-                    {emp.department}
-                  </div>
-                )}
-
-                {/* Email */}
-                <div className="flex items-center gap-2 text-sm break-all">
-                  <Mail className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
-                  <a
-                    href={`mailto:${emp.email}`}
-                    className="text-blue-600 hover:underline"
-                  >
-                    {emp.email || "No email"}
-                  </a>
-                </div>
-
-                {/* Bio */}
-                {emp.bio && (
-                  <p className="text-sm text-muted-foreground line-clamp-2">
-                    {emp.bio}
+                {/* Summary Footer */}
+                <div className="bg-white rounded border border-blue-100 p-3 mt-3">
+                  <p className="text-xs text-gray-600">
+                    <span className="font-semibold text-gray-800">ID:</span> {emp.id}
                   </p>
-                )}
-
-                {/* Contact Button */}
-                <Button
-                  variant="outline"
-                  className="w-full mt-4"
-                  onClick={() => {
-                    if (emp.email) {
-                      window.location.href = `mailto:${emp.email}`;
-                    }
-                  }}
-                >
-                  Send Email
-                </Button>
+                </div>
               </div>
             </Card>
           ))
         ) : (
-          <div className="col-span-full flex flex-col items-center justify-center py-12 text-center">
-            <p className="text-muted-foreground">No employees found</p>
-            <p className="text-sm text-muted-foreground mt-1">
-              Try adjusting your search or filters
-            </p>
+          <div className="col-span-full">
+            <Card className="p-12 text-center bg-gradient-to-r from-blue-50 to-transparent border-l-4 border-l-blue-300">
+              <Users className="w-16 h-16 text-blue-300 mx-auto mb-4" />
+              <p className="text-gray-700 font-semibold text-lg">No employees found</p>
+              <p className="text-gray-500 text-sm mt-2">Try adjusting your search or filter criteria</p>
+            </Card>
           </div>
         )}
       </div>
 
-      {/* Summary */}
-      <div className="text-sm text-muted-foreground">
-        Showing {filteredEmployees.length} of {employees?.length || 0} employees
-      </div>
+      {/* Summary Footer */}
+      {filteredEmployees.length > 0 && (
+        <Card className="p-4 bg-gradient-to-r from-blue-50 to-transparent border-t-2 border-t-blue-500">
+          <p className="text-sm text-gray-700">
+            <span className="font-bold text-blue-700">{filteredEmployees.length}</span> employee{filteredEmployees.length !== 1 ? 's' : ''} found
+            {selectedDepartment && <span className="text-gray-600"> in {selectedDepartment}</span>}
+          </p>
+        </Card>
+      )}
     </div>
   );
 }
