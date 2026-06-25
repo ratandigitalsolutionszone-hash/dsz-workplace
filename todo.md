@@ -137,3 +137,20 @@
 - [ ] Verify email history records 'sent' only after confirmed delivery
 - [ ] Test failure cases (missing connection, invalid token, API failure)
 - [ ] Verify error toasts and 'failed' status in email history
+
+
+## Company Notice Section UI Enhancement
+
+- [x] Add notice type indicators (Information, Important, Announcement, Urgent)
+- [x] Implement professional card-style layout with distinct colors
+- [x] Add icon indicators for each notice type (Info, AlertCircle, Megaphone, AlertCircle)
+- [x] Implement pinned notice highlighting with yellow theme
+- [x] Add type badges for non-pinned notices
+- [x] Improve header styling with gradient background (#500151 to #6b1a6b)
+- [x] Enhance form UI with notice type selector dropdown
+- [x] Add timestamp display with date and time
+- [x] Improve visual hierarchy and spacing
+- [x] Ensure responsive design for mobile/desktop
+- [ ] Test notice display with different types
+- [ ] Verify pinned notices appear at top with distinct styling
+- [ ] Test notice creation form with type selector
