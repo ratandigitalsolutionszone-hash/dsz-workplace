@@ -193,3 +193,19 @@
 - [x] Add automatic reminder status tracking (reminderSent flag)
 - [x] Handle reminder deletion when meeting is deleted
 - [x] Support customizable reminder time (1 minute to 24 hours before meeting)
+
+
+## Daily Report Edit Feature
+
+- [x] Add edit history table to database schema (report_edit_history)
+- [x] Add lastEditedBy and lastEditedAt fields to daily_reports table
+- [x] Create database migration for new fields
+- [x] Implement updateDailyReport procedure in backend
+- [x] Implement getReportEditHistory procedure in backend
+- [x] Add Edit button to daily report cards
+- [x] Create edit form modal component
+- [x] Implement authorization check (only creator or admin can edit)
+- [x] Display edit history in report details view
+- [x] Add edit history modal showing all versions
+- [x] Test edit functionality with multiple scenarios
+- [x] Verify authorization prevents unauthorized edits

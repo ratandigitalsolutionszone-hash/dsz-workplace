@@ -87,6 +87,88 @@ export const appRouter = router({
     getAll: protectedProcedure.query(({ ctx }) =>
       db.getUserDailyReports(ctx.user.id)
     ),
+    get: protectedProcedure
+      .input(z.object({ reportId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        const report = await db.getDailyReport(input.reportId);
+        if (!report) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Report not found" });
+        }
+        if (report.userId !== ctx.user.id && ctx.user.role !== "admin") {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Cannot access this report" });
+        }
+        return report;
+      }),
+    update: protectedProcedure
+      .input(
+        z.object({
+          reportId: z.number(),
+          reportDate: z.date().optional(),
+          tasksCompleted: z.string().optional(),
+          hoursWorked: z.string().optional(),
+          notes: z.string().optional(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const { reportId, ...updateData } = input;
+        const report = await db.getDailyReport(reportId);
+        
+        if (!report) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Report not found" });
+        }
+        
+        if (report.userId !== ctx.user.id && ctx.user.role !== "admin") {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Cannot edit this report" });
+        }
+
+        // Create edit history entry before updating
+        await db.createEditHistory({
+          reportId,
+          editedBy: ctx.user.id,
+          tasksCompleted: report.tasksCompleted,
+          hoursWorked: report.hoursWorked ? (report.hoursWorked as any) : undefined,
+          notes: report.notes,
+        });
+
+        // Update the report
+        const result = await db.updateDailyReport(reportId, {
+          ...updateData,
+          lastEditedBy: ctx.user.id,
+          lastEditedAt: new Date(),
+        });
+
+        return result?.[0];
+      }),
+    delete: protectedProcedure
+      .input(z.object({ reportId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        const report = await db.getDailyReport(input.reportId);
+        
+        if (!report) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Report not found" });
+        }
+        
+        if (report.userId !== ctx.user.id && ctx.user.role !== "admin") {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Cannot delete this report" });
+        }
+
+        return db.deleteDailyReport(input.reportId);
+      }),
+    getEditHistory: protectedProcedure
+      .input(z.object({ reportId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        const report = await db.getDailyReport(input.reportId);
+        
+        if (!report) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Report not found" });
+        }
+        
+        if (report.userId !== ctx.user.id && ctx.user.role !== "admin") {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Cannot access this report" });
+        }
+
+        return db.getReportEditHistory(input.reportId);
+      }),
   }),
 
   // Company Notices Router

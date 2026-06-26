@@ -7,6 +7,8 @@ import {
   InsertEmployeeProfile,
   dailyReports,
   InsertDailyReport,
+  dailyReportEditHistory,
+  InsertDailyReportEditHistory,
   companyNotices,
   InsertCompanyNotice,
   meetings,
@@ -552,4 +554,76 @@ export async function updateGmailAccessToken(userId: number, accessToken: string
     expiresAt: expiresAt || null,
     updatedAt: new Date(),
   }).where(eq(gmailTokens.userId, userId));
+}
+
+// Daily Report Update and Edit History
+export async function updateDailyReport(reportId: number, data: Partial<InsertDailyReport>) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  await db
+    .update(dailyReports)
+    .set({ ...data, updatedAt: new Date() })
+    .where(eq(dailyReports.id, reportId));
+
+  return db.select().from(dailyReports).where(eq(dailyReports.id, reportId)).limit(1);
+}
+
+export async function getDailyReport(reportId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db
+    .select()
+    .from(dailyReports)
+    .where(eq(dailyReports.id, reportId))
+    .limit(1);
+  
+  return result[0];
+}
+
+export async function createEditHistory(data: InsertDailyReportEditHistory) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db.insert(dailyReportEditHistory).values(data);
+  return result;
+}
+
+export async function getReportEditHistory(reportId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db
+    .select()
+    .from(dailyReportEditHistory)
+    .where(eq(dailyReportEditHistory.reportId, reportId))
+    .orderBy((t) => t.editedAt);
+}
+
+export async function deleteDailyReport(reportId: number) {
+  const db = await getDb();
+  if (!db) return false;
+
+  // Delete edit history first
+  await db
+    .delete(dailyReportEditHistory)
+    .where(eq(dailyReportEditHistory.reportId, reportId));
+
+  // Then delete the report
+  await db.delete(dailyReports).where(eq(dailyReports.id, reportId));
+  return true;
+}
+
+export async function getUserById(userId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db
+    .select()
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1);
+  
+  return result[0];
 }

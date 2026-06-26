@@ -51,6 +51,8 @@ export const dailyReports = mysqlTable("daily_reports", {
   tasksCompleted: text("tasks_completed"),
   hoursWorked: decimal("hours_worked", { precision: 5, scale: 2 }),
   notes: text("notes"),
+  lastEditedBy: int("last_edited_by"),
+  lastEditedAt: timestamp("last_edited_at"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, (table) => ({
@@ -174,3 +176,20 @@ export const gmailTokens = mysqlTable("gmail_tokens", {
 
 export type GmailToken = typeof gmailTokens.$inferSelect;
 export type InsertGmailToken = typeof gmailTokens.$inferInsert;
+// Daily Report Edit History Table
+export const dailyReportEditHistory = mysqlTable("daily_report_edit_history", {
+  id: int("id").autoincrement().primaryKey(),
+  reportId: int("report_id").notNull(),
+  editedBy: int("edited_by").notNull(),
+  tasksCompleted: text("tasks_completed"),
+  hoursWorked: decimal("hours_worked", { precision: 5, scale: 2 }),
+  notes: text("notes"),
+  editedAt: timestamp("edited_at").defaultNow().notNull(),
+}, (table) => ({
+  reportIdIdx: index("edit_history_report_id_idx").on(table.reportId),
+  editedByIdx: index("edit_history_edited_by_idx").on(table.editedBy),
+  editedAtIdx: index("edit_history_edited_at_idx").on(table.editedAt),
+}));
+
+export type DailyReportEditHistory = typeof dailyReportEditHistory.$inferSelect;
+export type InsertDailyReportEditHistory = typeof dailyReportEditHistory.$inferInsert;
