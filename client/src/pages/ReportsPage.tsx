@@ -48,6 +48,7 @@ export default function ReportsPage() {
 
   // Team queries
   const { data: teams, refetch: refetchTeams } = trpc.teams.getAll.useQuery();
+  const { data: allEmployees } = trpc.teams.getAllEmployees.useQuery();
   const { data: teamMembers } = trpc.teams.getMembers.useQuery(
     { teamId: selectedTeamId || 0 },
     { enabled: !!selectedTeamId }
@@ -623,9 +624,9 @@ export default function ReportsPage() {
                         <SelectValue placeholder="Select team leader" />
                       </SelectTrigger>
                       <SelectContent>
-                        {eligibleEmployees?.map((emp: any) => (
+                        {allEmployees?.map((emp: any) => (
                           <SelectItem key={emp.id} value={emp.id.toString()}>
-                            {emp.name} ({emp.email})
+                            {emp.name} {emp.department ? `(${emp.department})` : ''} {emp.position ? `- ${emp.position}` : ''}
                           </SelectItem>
                         ))}
                       </SelectContent>

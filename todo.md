@@ -278,3 +278,15 @@
 - [x] Verify all data is saved and displayed correctly
 - [x] Fix any UI/UX issues
 - [x] Verify error handling and validation
+
+
+## Team Leader Dropdown Fix
+
+- [x] Review Employee Directory data structure and schema
+- [x] Fix getAllEmployees query to fetch active employees only
+- [x] Update Create Team dialog to use correct employee query
+- [x] Display employee full name with optional ID/Department
+- [x] Test dropdown loads all employees
+- [x] Test new employees appear automatically
+- [x] Test inactive employees are filtered out
+- [x] Test team leader assignment and persistence

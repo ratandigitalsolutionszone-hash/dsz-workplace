@@ -810,7 +810,11 @@ export async function getAllEmployees() {
       name: users.name,
       email: users.email,
       role: users.role,
+      position: employeeProfiles.position,
+      department: employeeProfiles.department,
+      profilePhotoUrl: employeeProfiles.profilePhotoUrl,
     })
     .from(users)
+    .leftJoin(employeeProfiles, eq(users.id, employeeProfiles.userId))
     .where(eq(users.role, 'user'));
 }

@@ -581,6 +581,10 @@ export const appRouter = router({
       return db.getUserTeams(ctx.user.id);
     }),
 
+    getAllEmployees: protectedProcedure.query(async ({ ctx }) => {
+      return db.getAllEmployees();
+    }),
+
     getById: protectedProcedure
       .input(z.object({ teamId: z.number() }))
       .query(async ({ ctx, input }) => {
@@ -602,6 +606,10 @@ export const appRouter = router({
         }
         return db.getTeamMembers(input.teamId);
       }),
+
+    getAllEmployeesForLeaderSelection: protectedProcedure.query(async ({ ctx }) => {
+      return db.getAllEmployees();
+    }),
 
     getEligibleMembers: protectedProcedure
       .input(z.object({ teamId: z.number() }))
