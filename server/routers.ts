@@ -2,6 +2,14 @@ import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router, protectedProcedure } from "./_core/trpc";
+
+// Admin-only procedure
+const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
+  if (ctx.user.role !== 'admin') {
+    throw new TRPCError({ code: 'FORBIDDEN' });
+  }
+  return next({ ctx });
+});
 import { z } from "zod";
 import * as db from "./db";
 import { TRPCError } from "@trpc/server";
@@ -542,6 +550,30 @@ export const appRouter = router({
 
   // Team Management Router
   teams: router({
+    create: adminProcedure
+      .input(z.object({ name: z.string().min(1), description: z.string().optional(), teamLeaderId: z.number() }))
+      .mutation(async ({ ctx, input }: any) => {
+        return db.createTeam({ name: input.name, description: input.description || '', teamLeaderId: input.teamLeaderId, createdBy: ctx.user.id });
+      }),
+
+    update: adminProcedure
+      .input(z.object({ teamId: z.number(), name: z.string().min(1).optional(), description: z.string().optional(), teamLeaderId: z.number().optional() }))
+      .mutation(async ({ ctx, input }: any) => {
+        return db.updateTeam(input.teamId, { name: input.name, description: input.description, teamLeaderId: input.teamLeaderId });
+      }),
+
+    delete: adminProcedure
+      .input(z.object({ teamId: z.number() }))
+      .mutation(async ({ ctx, input }: any) => {
+        return db.deleteTeam(input.teamId);
+      }),
+
+    assignLeader: adminProcedure
+      .input(z.object({ teamId: z.number(), userId: z.number() }))
+      .mutation(async ({ ctx, input }: any) => {
+        return db.updateTeam(input.teamId, { teamLeaderId: input.userId });
+      }),
+
     getAll: protectedProcedure.query(async ({ ctx }) => {
       if (ctx.user.role === 'admin') {
         return db.getAllTeams();
@@ -569,6 +601,20 @@ export const appRouter = router({
           throw new TRPCError({ code: 'FORBIDDEN' });
         }
         return db.getTeamMembers(input.teamId);
+      }),
+
+    getEligibleMembers: protectedProcedure
+      .input(z.object({ teamId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        const team = await db.getTeam(input.teamId);
+        if (!team) throw new TRPCError({ code: 'NOT_FOUND' });
+        if (ctx.user.role !== 'admin' && ctx.user.id !== team.teamLeaderId) {
+          throw new TRPCError({ code: 'FORBIDDEN' });
+        }
+        const allEmployees = await db.getAllEmployees();
+        const teamMembers = await db.getTeamMembers(input.teamId);
+        const memberIds = teamMembers.map((m: any) => m.userId);
+        return allEmployees.filter((emp: any) => !memberIds.includes(emp.id));
       }),
 
     getReports: protectedProcedure

@@ -52,6 +52,10 @@ export default function ReportsPage() {
     { teamId: selectedTeamId || 0 },
     { enabled: !!selectedTeamId }
   );
+  const { data: eligibleEmployees } = trpc.teams.getEligibleMembers.useQuery(
+    { teamId: selectedTeamId || 0 },
+    { enabled: !!selectedTeamId }
+  );
   const { data: teamReports } = trpc.teams.getReports.useQuery(
     { 
       teamId: selectedTeamId || 0,
@@ -122,6 +126,32 @@ export default function ReportsPage() {
     },
   });
 
+  const createTeamMutation = trpc.teams.create.useMutation({
+    onSuccess: () => {
+      toast.success('Team created successfully');
+      setShowCreateTeam(false);
+      setTeamName('');
+      setTeamDescription('');
+      setSelectedLeaderId(null);
+      refetchTeams();
+    },
+    onError: () => {
+      toast.error('Failed to create team');
+    },
+  });
+
+  const assignLeaderMutation = trpc.teams.assignLeader.useMutation({
+    onSuccess: () => {
+      toast.success('Team leader assigned successfully');
+      if (selectedTeamId) {
+        refetchTeams();
+      }
+    },
+    onError: () => {
+      toast.error('Failed to assign team leader');
+    },
+  });
+
   const [formData, setFormData] = useState({
     reportDate: new Date().toISOString().split("T")[0],
     tasksCompleted: "",
@@ -174,6 +204,22 @@ export default function ReportsPage() {
     if (confirm('Are you sure you want to remove this member from the team?')) {
       removeMemberMutation.mutate({ teamId: selectedTeamId, userId: memberId });
     }
+  };
+
+  const handleCreateTeam = () => {
+    if (!teamName || !selectedLeaderId) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+    createTeamMutation.mutate({
+      name: teamName,
+      description: teamDescription,
+      teamLeaderId: selectedLeaderId,
+    });
+  };
+
+  const handleAssignLeader = (teamId: number, userId: number) => {
+    assignLeaderMutation.mutate({ teamId, userId });
   };
 
   if (loading) {
@@ -544,6 +590,55 @@ export default function ReportsPage() {
               </div>
             )}
 
+            {/* Create Team Dialog */}
+            <Dialog open={showCreateTeam} onOpenChange={setShowCreateTeam}>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Create New Team</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div>
+                    <Label>Team Name</Label>
+                    <Input
+                      value={teamName}
+                      onChange={(e) => setTeamName(e.target.value)}
+                      placeholder="Enter team name"
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label>Team Description</Label>
+                    <Textarea
+                      value={teamDescription}
+                      onChange={(e) => setTeamDescription(e.target.value)}
+                      placeholder="Enter team description"
+                      rows={3}
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label>Team Leader</Label>
+                    <Select onValueChange={(value) => setSelectedLeaderId(parseInt(value))}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select team leader" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {eligibleEmployees?.map((emp: any) => (
+                          <SelectItem key={emp.id} value={emp.id.toString()}>
+                            {emp.name} ({emp.email})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setShowCreateTeam(false)}>Cancel</Button>
+                  <Button onClick={handleCreateTeam} className="bg-green-600 hover:bg-green-700">Create Team</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+
             {/* Add Member Dialog */}
             <Dialog open={showAddMember} onOpenChange={setShowAddMember}>
               <DialogContent>
@@ -558,9 +653,9 @@ export default function ReportsPage() {
                         <SelectValue placeholder="Choose an employee" />
                       </SelectTrigger>
                       <SelectContent>
-                        {teamMembers?.map((member: any) => (
-                          <SelectItem key={member.userId} value={member.userId.toString()}>
-                            {member.userName} ({member.userEmail})
+                        {eligibleEmployees?.map((emp: any) => (
+                          <SelectItem key={emp.id} value={emp.id.toString()}>
+                            {emp.name} ({emp.email})
                           </SelectItem>
                         ))}
                       </SelectContent>

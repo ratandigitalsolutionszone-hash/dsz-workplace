@@ -798,3 +798,19 @@ export async function getTeamLeaderTeams(userId: number) {
     .from(teams)
     .where(eq(teams.teamLeaderId, userId));
 }
+
+
+export async function getAllEmployees() {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db
+    .select({
+      id: users.id,
+      name: users.name,
+      email: users.email,
+      role: users.role,
+    })
+    .from(users)
+    .where(eq(users.role, 'user'));
+}
