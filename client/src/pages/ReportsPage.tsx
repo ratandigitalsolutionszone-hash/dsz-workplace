@@ -234,7 +234,7 @@ export default function ReportsPage() {
                         size="sm"
                         variant="outline"
                         onClick={() => handleEditClick(report)}
-                        className="text-blue-600 border-blue-600 hover:bg-blue-50"
+                        className="text-green-700 border-green-700 hover:bg-green-50"
                       >
                         <Edit2 className="w-4 h-4 mr-1" />
                         Edit

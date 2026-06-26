@@ -194,7 +194,7 @@ export default function EmailRecipientManager({ onRecipientSelected }: EmailReci
                   size="sm"
                   variant="ghost"
                   onClick={() => handleEditRecipient(recipient)}
-                  className="text-blue-500 hover:text-blue-700"
+                  className="text-green-700 hover:text-green-900"
                 >
                   <Edit2 className="w-4 h-4" />
                 </Button>
