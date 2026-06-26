@@ -111,9 +111,8 @@ export default function ProfilePage() {
               Professional Details
             </h2>
             <Button
-              variant={isEditing ? "outline" : "default"}
+              variant={isEditing ? "cancel" : "default"}
               onClick={() => setIsEditing(!isEditing)}
-              className={isEditing ? "bg-white text-[#FF0000] hover:bg-gray-100" : "bg-white text-[#FF0000] hover:bg-gray-100"}
             >
               {isEditing ? "Cancel" : "Edit"}
             </Button>

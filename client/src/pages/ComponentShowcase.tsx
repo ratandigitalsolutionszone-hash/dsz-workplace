@@ -1046,7 +1046,7 @@ export default function ComponentsShowcase() {
                       </div>
                       <div className="flex justify-end gap-2">
                         <Button
-                          variant="outline"
+                          variant="cancel"
                           onClick={() => setDialogOpen(false)}
                         >
                           Cancel
@@ -1085,7 +1085,7 @@ export default function ComponentsShowcase() {
                       <DrawerFooter>
                         <Button>Submit</Button>
                         <DrawerClose asChild>
-                          <Button variant="outline">Cancel</Button>
+                          <Button variant="cancel">Cancel</Button>
                         </DrawerClose>
                       </DrawerFooter>
                     </DrawerContent>

@@ -203,7 +203,8 @@ export default function TasksPage() {
               resetForm();
               setIsCreating(!isCreating);
             }}
-            className="bg-purple-600 hover:bg-purple-700"
+            variant={isCreating ? "cancel" : "default"}
+            className={isCreating ? "" : "bg-purple-600 hover:bg-purple-700"}
           >
             {isCreating ? "Cancel" : "New Task"}
           </Button>

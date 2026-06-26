@@ -98,7 +98,7 @@ export default function EmailRecipientManager({ onRecipientSelected }: EmailReci
         <h3 className="text-lg font-semibold">Email Recipients</h3>
         <Button
           size="sm"
-          variant={isAdding ? "outline" : "default"}
+          variant={isAdding ? "cancel" : "default"}
           onClick={() => {
             if (isAdding) {
               handleCancel();

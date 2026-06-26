@@ -152,7 +152,8 @@ export default function MeetingsPage() {
               resetForm();
               setIsCreating(!isCreating);
             }}
-            className="bg-blue-600 hover:bg-blue-700"
+            variant={isCreating ? "cancel" : "default"}
+            className={isCreating ? "" : "bg-blue-600 hover:bg-blue-700"}
           >
             {isCreating ? "Cancel" : "Schedule Meeting"}
           </Button>

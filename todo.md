@@ -161,3 +161,12 @@
 - [x] Enhanced Reports Monitor with stats dashboard and color-coded indicators
 - [x] Enhanced Daily Reports with professional report cards and icons
 - [x] Applied consistent black heading styling to all 7 core feature sections
+
+
+## UI Consistency - Cancel Button Styling
+
+- [x] Updated TasksPage "New Task" toggle button to use cancel variant when creating
+- [x] Updated ComponentShowcase Dialog Cancel button to use cancel variant
+- [x] Updated ComponentShowcase Drawer Cancel button to use cancel variant
+- [x] Verified all Cancel buttons use reddish-brown color (#8B4513) for consistent branding
+- [x] Verified visual consistency across all pages with screenshot verification

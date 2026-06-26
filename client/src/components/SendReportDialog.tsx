@@ -156,7 +156,7 @@ export default function SendReportDialog({
           {/* Action Buttons */}
           <div className="flex gap-3 justify-end">
             <Button
-              variant="outline"
+              variant="cancel"
               onClick={() => setIsOpen(false)}
               className="gap-2"
             >
