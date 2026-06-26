@@ -26,8 +26,8 @@ function Router() {
       <Route path={"/meetings"} component={MeetingsPage} />
       <Route path={"/tasks"} component={TasksPage} />
       <Route path={"/directory"} component={DirectoryPage} />
-      <Route path={"admin-reports"} component={AdminReportsDashboard} />
-      <Route path={"team-work"} component={TeamWorkPage} />
+      <Route path={"/admin-reports"} component={AdminReportsDashboard} />
+      <Route path={"/team-work"} component={TeamWorkPage} />
       <Route path={"404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

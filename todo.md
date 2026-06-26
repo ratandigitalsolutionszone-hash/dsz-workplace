@@ -240,3 +240,19 @@
 - [x] Test filtering functionality
 - [x] Test authorization (employee, team leader, admin)
 - [x] Verify UI consistency with DSZ design
+
+
+## Team Work Integration into Daily Reports Page
+
+- [x] Add Team Work tab to ReportsPage component
+- [x] Implement team creation dialog (admin only)
+- [x] Implement team leader assignment interface
+- [x] Implement team member management UI
+- [x] Implement team report submission from Daily Reports
+- [x] Implement team leader report viewing dashboard
+- [x] Add filtering and search for team reports
+- [x] Verify Team Work tab appears in Daily Reports section
+- [x] Test team creation and member assignment
+- [x] Test team report submission and viewing
+- [x] Verify role-based access control
+- [x] Verify UI consistency with DSZ design
