@@ -193,3 +193,51 @@ export const dailyReportEditHistory = mysqlTable("daily_report_edit_history", {
 
 export type DailyReportEditHistory = typeof dailyReportEditHistory.$inferSelect;
 export type InsertDailyReportEditHistory = typeof dailyReportEditHistory.$inferInsert;
+
+
+// Teams Table
+export const teams = mysqlTable("teams", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  teamLeaderId: int("team_leader_id").notNull(),
+  createdBy: int("created_by").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  teamLeaderIdIdx: index("team_leader_id_idx").on(table.teamLeaderId),
+  createdByIdx: index("team_created_by_idx").on(table.createdBy),
+}));
+
+export type Team = typeof teams.$inferSelect;
+export type InsertTeam = typeof teams.$inferInsert;
+
+// Team Members Table
+export const teamMembers = mysqlTable("team_members", {
+  id: int("id").autoincrement().primaryKey(),
+  teamId: int("team_id").notNull(),
+  userId: int("user_id").notNull(),
+  joinedAt: timestamp("joined_at").defaultNow().notNull(),
+}, (table) => ({
+  teamIdIdx: index("team_members_team_id_idx").on(table.teamId),
+  userIdIdx: index("team_members_user_id_idx").on(table.userId),
+  teamUserUniqueIdx: index("team_members_team_user_unique").on(table.teamId, table.userId),
+}));
+
+export type TeamMember = typeof teamMembers.$inferSelect;
+export type InsertTeamMember = typeof teamMembers.$inferInsert;
+
+// Team Reports Table (linking daily reports to teams)
+export const teamReports = mysqlTable("team_reports", {
+  id: int("id").autoincrement().primaryKey(),
+  teamId: int("team_id").notNull(),
+  reportId: int("report_id").notNull(),
+  submittedAt: timestamp("submitted_at").defaultNow().notNull(),
+}, (table) => ({
+  teamIdIdx: index("team_reports_team_id_idx").on(table.teamId),
+  reportIdIdx: index("team_reports_report_id_idx").on(table.reportId),
+  teamReportUniqueIdx: index("team_reports_team_report_unique").on(table.teamId, table.reportId),
+}));
+
+export type TeamReport = typeof teamReports.$inferSelect;
+export type InsertTeamReport = typeof teamReports.$inferInsert;

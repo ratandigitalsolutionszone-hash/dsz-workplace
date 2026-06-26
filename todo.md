@@ -216,3 +216,27 @@
 - [x] Update Edit button color in ReportsPage to Deep Green (#16a34a / green-700)
 - [x] Update Edit button color in EmailRecipientManager to Deep Green
 - [x] Verify Edit button styling across all pages
+
+
+## Team Work Feature (Daily Report Module)
+
+- [x] Add teams table to database schema
+- [x] Add team_members table to database schema
+- [x] Add team_reports table to database schema
+- [x] Create database migrations for new tables
+- [x] Implement team CRUD procedures in backend
+- [x] Implement team member management procedures
+- [x] Implement team report submission procedures
+- [x] Implement team report filtering procedures (by date, employee, status)
+- [ ] Create Team Work dashboard page
+- [ ] Build team management interface (admin only)
+- [ ] Build team member assignment interface
+- [ ] Implement team leader report viewing
+- [ ] Implement role-based access control for reports
+- [ ] Add filtering UI (date, employee, status)
+- [ ] Create professional dashboard layout
+- [ ] Test team creation and member assignment
+- [ ] Test report submission under teams
+- [ ] Test filtering functionality
+- [ ] Test authorization (employee, team leader, admin)
+- [ ] Verify UI consistency with DSZ design

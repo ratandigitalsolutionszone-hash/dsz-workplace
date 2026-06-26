@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, and, desc, gte, lte, or } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import {
   InsertUser,
@@ -22,6 +22,12 @@ import {
   gmailTokens,
   InsertGmailToken,
   GmailToken,
+  teams,
+  InsertTeam,
+  teamMembers,
+  InsertTeamMember,
+  teamReports,
+  InsertTeamReport,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -626,4 +632,169 @@ export async function getUserById(userId: number) {
     .limit(1);
   
   return result[0];
+}
+
+// Team Management Functions
+export async function createTeam(data: { name: string; description?: string; teamLeaderId: number; createdBy: number }) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db.insert(teams).values(data);
+  return result;
+}
+
+export async function getTeam(teamId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db
+    .select()
+    .from(teams)
+    .where(eq(teams.id, teamId))
+    .limit(1);
+  
+  return result[0];
+}
+
+export async function getAllTeams() {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db.select().from(teams);
+}
+
+export async function getUserTeams(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db
+    .select()
+    .from(teams)
+    .where(or(eq(teams.teamLeaderId, userId), eq(teams.createdBy, userId)));
+}
+
+export async function updateTeam(teamId: number, data: Partial<{ name: string; description: string; teamLeaderId: number }>) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db
+    .update(teams)
+    .set({ ...data, updatedAt: new Date() })
+    .where(eq(teams.id, teamId));
+  
+  return result;
+}
+
+export async function deleteTeam(teamId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  // Delete team members first
+  await db.delete(teamMembers).where(eq(teamMembers.teamId, teamId));
+  // Delete team reports
+  await db.delete(teamReports).where(eq(teamReports.teamId, teamId));
+  // Delete team
+  return db.delete(teams).where(eq(teams.id, teamId));
+}
+
+// Team Member Functions
+export async function addTeamMember(teamId: number, userId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db.insert(teamMembers).values({ teamId, userId });
+  return result;
+}
+
+export async function removeTeamMember(teamId: number, userId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  return db
+    .delete(teamMembers)
+    .where(and(eq(teamMembers.teamId, teamId), eq(teamMembers.userId, userId)));
+}
+
+export async function getTeamMembers(teamId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const members = await db
+    .select({
+      id: teamMembers.id,
+      userId: teamMembers.userId,
+      joinedAt: teamMembers.joinedAt,
+      userName: users.name,
+      userEmail: users.email,
+    })
+    .from(teamMembers)
+    .innerJoin(users, eq(teamMembers.userId, users.id))
+    .where(eq(teamMembers.teamId, teamId));
+  
+  return members;
+}
+
+export async function getUserTeamMemberships(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db
+    .select()
+    .from(teamMembers)
+    .where(eq(teamMembers.userId, userId));
+}
+
+// Team Reports Functions
+export async function addTeamReport(teamId: number, reportId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db.insert(teamReports).values({ teamId, reportId });
+  return result;
+}
+
+export async function getTeamReports(teamId: number, filters?: { startDate?: Date; endDate?: Date; userId?: number; status?: string }) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const conditions = [eq(teamReports.teamId, teamId)];
+
+  if (filters?.startDate) {
+    conditions.push(gte(dailyReports.reportDate, filters.startDate));
+  }
+  if (filters?.endDate) {
+    conditions.push(lte(dailyReports.reportDate, filters.endDate));
+  }
+  if (filters?.userId) {
+    conditions.push(eq(dailyReports.userId, filters.userId));
+  }
+
+  return db
+    .select({
+      id: teamReports.id,
+      teamId: teamReports.teamId,
+      reportId: teamReports.reportId,
+      submittedAt: teamReports.submittedAt,
+      reportDate: dailyReports.reportDate,
+      tasksCompleted: dailyReports.tasksCompleted,
+      hoursWorked: dailyReports.hoursWorked,
+      notes: dailyReports.notes,
+      userId: dailyReports.userId,
+      userName: users.name,
+      userEmail: users.email,
+    })
+    .from(teamReports)
+    .innerJoin(dailyReports, eq(teamReports.reportId, dailyReports.id))
+    .innerJoin(users, eq(dailyReports.userId, users.id))
+    .where(and(...conditions));
+}
+
+export async function getTeamLeaderTeams(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db
+    .select()
+    .from(teams)
+    .where(eq(teams.teamLeaderId, userId));
 }

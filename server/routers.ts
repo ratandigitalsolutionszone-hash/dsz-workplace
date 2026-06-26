@@ -539,6 +539,84 @@ export const appRouter = router({
         db.markRecipientAsFrequent(input.recipientId, true, ctx.user.id)
       ),
   }),
+
+  // Team Management Router
+  teams: router({
+    getAll: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user.role === 'admin') {
+        return db.getAllTeams();
+      }
+      return db.getUserTeams(ctx.user.id);
+    }),
+
+    getById: protectedProcedure
+      .input(z.object({ teamId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        const team = await db.getTeam(input.teamId);
+        if (!team) throw new TRPCError({ code: 'NOT_FOUND' });
+        if (ctx.user.role !== 'admin' && ctx.user.id !== team.teamLeaderId && ctx.user.id !== team.createdBy) {
+          throw new TRPCError({ code: 'FORBIDDEN' });
+        }
+        return team;
+      }),
+
+    getMembers: protectedProcedure
+      .input(z.object({ teamId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        const team = await db.getTeam(input.teamId);
+        if (!team) throw new TRPCError({ code: 'NOT_FOUND' });
+        if (ctx.user.role !== 'admin' && ctx.user.id !== team.teamLeaderId) {
+          throw new TRPCError({ code: 'FORBIDDEN' });
+        }
+        return db.getTeamMembers(input.teamId);
+      }),
+
+    getReports: protectedProcedure
+      .input(z.object({ teamId: z.number(), startDate: z.date().optional(), endDate: z.date().optional(), userId: z.number().optional() }))
+      .query(async ({ ctx, input }) => {
+        const team = await db.getTeam(input.teamId);
+        if (!team) throw new TRPCError({ code: 'NOT_FOUND' });
+        if (ctx.user.role !== 'admin' && ctx.user.id !== team.teamLeaderId) {
+          throw new TRPCError({ code: 'FORBIDDEN' });
+        }
+        return db.getTeamReports(input.teamId, { startDate: input.startDate, endDate: input.endDate, userId: input.userId });
+      }),
+
+    addMember: protectedProcedure
+      .input(z.object({ teamId: z.number(), userId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        const team = await db.getTeam(input.teamId);
+        if (!team) throw new TRPCError({ code: 'NOT_FOUND' });
+        if (ctx.user.role !== 'admin' && ctx.user.id !== team.teamLeaderId) {
+          throw new TRPCError({ code: 'FORBIDDEN' });
+        }
+        return db.addTeamMember(input.teamId, input.userId);
+      }),
+
+    removeMember: protectedProcedure
+      .input(z.object({ teamId: z.number(), userId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        const team = await db.getTeam(input.teamId);
+        if (!team) throw new TRPCError({ code: 'NOT_FOUND' });
+        if (ctx.user.role !== 'admin' && ctx.user.id !== team.teamLeaderId) {
+          throw new TRPCError({ code: 'FORBIDDEN' });
+        }
+        return db.removeTeamMember(input.teamId, input.userId);
+      }),
+
+    submitReport: protectedProcedure
+      .input(z.object({ teamId: z.number(), reportId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        const team = await db.getTeam(input.teamId);
+        if (!team) throw new TRPCError({ code: 'NOT_FOUND' });
+        const members = await db.getUserTeamMemberships(ctx.user.id);
+        const isMember = members.some(m => m.teamId === input.teamId);
+        if (ctx.user.role !== 'admin' && !isMember && ctx.user.id !== team.teamLeaderId) {
+          throw new TRPCError({ code: 'FORBIDDEN' });
+        }
+        return db.addTeamReport(input.teamId, input.reportId);
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

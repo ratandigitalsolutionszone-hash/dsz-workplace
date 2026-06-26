@@ -43,6 +43,13 @@
       "when": 1782462608986,
       "tag": "0005_greedy_hammerhead",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1782464037074,
+      "tag": "0006_nasty_crystal",
+      "breakpoints": true
     }
   ]
 }
