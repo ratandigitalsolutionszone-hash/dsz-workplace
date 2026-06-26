@@ -5,6 +5,9 @@ import { publicProcedure, router, protectedProcedure } from "./_core/trpc";
 import { z } from "zod";
 import * as db from "./db";
 import { TRPCError } from "@trpc/server";
+import { storagePut } from "./storage";
+import { parse as parseCookie } from "cookie";
+import { createHeartbeatJob, deleteHeartbeatJob } from "./_core/heartbeat";
 
 export const appRouter = router({
   system: systemRouter,
@@ -37,6 +40,34 @@ export const appRouter = router({
       .mutation(({ ctx, input }) =>
         db.updateEmployeeProfile(ctx.user.id, input)
       ),
+    uploadPhoto: protectedProcedure
+      .input(
+        z.object({
+          photoBase64: z.string(),
+          fileName: z.string(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        try {
+          // Decode base64 to buffer
+          const buffer = Buffer.from(input.photoBase64, 'base64');
+          
+          // Upload to storage
+          const { url } = await storagePut(
+            `profile-photos/${ctx.user.id}/${input.fileName}`,
+            buffer,
+            'image/jpeg'
+          );
+          
+          // Update profile with photo URL
+          return db.updateEmployeeProfile(ctx.user.id, { profilePhotoUrl: url });
+        } catch (error) {
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: `Failed to upload profile photo: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          });
+        }
+      }),
   }),
 
   // Daily Reports Router
@@ -120,6 +151,66 @@ export const appRouter = router({
       .input(z.object({ meetingId: z.number() }))
       .mutation(async ({ ctx, input }) => {
         return db.deleteMeeting(input.meetingId);
+      }),
+    setReminder: protectedProcedure
+      .input(
+        z.object({
+          meetingId: z.number(),
+          reminderMinutesBefore: z.number().min(1).max(1440),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const meetings = await db.getAllMeetings();
+        const meeting = meetings.find(m => m.id === input.meetingId);
+        
+        if (!meeting) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Meeting not found" });
+        }
+
+        // Calculate reminder time
+        const reminderTime = new Date(meeting.startTime);
+        reminderTime.setMinutes(reminderTime.getMinutes() - input.reminderMinutesBefore);
+
+        // Delete existing reminder if any
+        if (meeting.scheduleCronTaskUid) {
+          const sessionToken = parseCookie(ctx.req.headers.cookie ?? "")[COOKIE_NAME] ?? "";
+          try {
+            await deleteHeartbeatJob(meeting.scheduleCronTaskUid, sessionToken);
+          } catch (error) {
+            console.error("Failed to delete old reminder:", error);
+          }
+        }
+
+        // Create cron expression for reminder time
+        const minutes = reminderTime.getUTCMinutes();
+        const hours = reminderTime.getUTCHours();
+        const day = reminderTime.getUTCDate();
+        const month = reminderTime.getUTCMonth() + 1;
+        const cronExpression = `0 ${minutes} ${hours} ${day} ${month} *`;
+
+        // Create new scheduled reminder
+        const sessionToken = parseCookie(ctx.req.headers.cookie ?? "")[COOKIE_NAME] ?? "";
+        try {
+          const job = await createHeartbeatJob({
+            name: `meeting-reminder-${meeting.id}`,
+            cron: cronExpression,
+            path: "/api/scheduled/meeting-reminder",
+            payload: { meetingId: meeting.id },
+            description: `Reminder for meeting: ${meeting.title}`,
+          }, sessionToken);
+
+          // Update meeting with task UID
+          await db.updateMeeting(input.meetingId, {
+            scheduleCronTaskUid: job.taskUid,
+          });
+
+          return { success: true, taskUid: job.taskUid };
+        } catch (error) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: `Failed to schedule reminder: ${error instanceof Error ? error.message : "Unknown error"}`,
+          });
+        }
       }),
   }),
 
@@ -300,48 +391,40 @@ export const appRouter = router({
               throw new Error("Gmail token expired and no refresh token available. Please reconnect your Gmail account.");
             }
           }
-          
-          const sendResult = await sendEmailViaGmail(
+
+          // Send the email
+          const result = await sendEmailViaGmail(
             accessToken,
             input.recipients,
             input.subject,
             emailBody
           );
 
-          // Check if email was actually sent
-          if (!sendResult.success) {
-            throw new Error(`Gmail API error: ${sendResult.error}`);
-          }
-
-          // Create successful email history entry only after confirmed delivery
-          await db.createEmailHistory(
-            input.reportId,
-            ctx.user.id,
-            input.recipients,
-            input.subject,
-            "sent"
-          );
-          return { success: true, message: "Report sent successfully via Gmail" };
-        } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : "Failed to send report";
-          
-          // Create failed email history entry
-          try {
+          // Log to email history
+          if (result.success) {
+            await db.createEmailHistory(
+              input.reportId,
+              ctx.user.id,
+              input.recipients,
+              input.subject,
+              "sent"
+            );
+            return { success: true, message: "Email sent successfully" };
+          } else {
             await db.createEmailHistory(
               input.reportId,
               ctx.user.id,
               input.recipients,
               input.subject,
               "failed",
-              errorMessage
+              result.error || "Unknown error"
             );
-          } catch (historyError) {
-            console.error("Failed to create error history entry:", historyError);
+            throw new Error(result.error || "Failed to send email");
           }
-          
+        } catch (error) {
           throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: errorMessage,
+            code: 'INTERNAL_SERVER_ERROR',
+            message: error instanceof Error ? error.message : 'Failed to send report',
           });
         }
       }),

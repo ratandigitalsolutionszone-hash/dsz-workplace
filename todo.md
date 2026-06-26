@@ -170,3 +170,26 @@
 - [x] Updated ComponentShowcase Drawer Cancel button to use cancel variant
 - [x] Verified all Cancel buttons use reddish-brown color (#8B4513) for consistent branding
 - [x] Verified visual consistency across all pages with screenshot verification
+
+## Profile Photo Upload Feature
+
+- [x] Add profile photo upload UI to ProfilePage with Avatar component
+- [x] Implement file validation (image type, 5MB size limit)
+- [x] Create backend procedure for photo upload (profile.uploadPhoto)
+- [x] Integrate S3 storage for profile photos
+- [x] Display uploaded photo in profile avatar
+- [x] Add upload progress feedback
+- [x] Implement error handling for upload failures
+
+## Meeting Reminders System
+
+- [x] Add scheduleCronTaskUid field to meetings table
+- [x] Create database migration for new field
+- [x] Implement setReminder tRPC procedure for scheduling reminders
+- [x] Create scheduled task handler at /api/scheduled/meeting-reminder
+- [x] Integrate Heartbeat job scheduling for meeting reminders
+- [x] Mount reminder handler in Express server
+- [x] Implement reminder notification via owner notification system
+- [x] Add automatic reminder status tracking (reminderSent flag)
+- [x] Handle reminder deletion when meeting is deleted
+- [x] Support customizable reminder time (1 minute to 24 hours before meeting)

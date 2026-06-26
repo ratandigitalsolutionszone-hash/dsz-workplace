@@ -8,8 +8,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+import { Upload } from "lucide-react";
 
 export default function ProfilePage() {
   const { user, loading } = useAuth();
@@ -30,12 +32,24 @@ export default function ProfilePage() {
     },
   });
 
+  const uploadPhotoMutation = trpc.profile.uploadPhoto.useMutation({
+    onSuccess: () => {
+      toast.success("Profile photo uploaded successfully");
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to upload profile photo");
+    },
+  });
+
   const [formData, setFormData] = useState({
     position: "",
     department: "",
     phoneNumber: "",
     bio: "",
   });
+
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -57,6 +71,51 @@ export default function ProfilePage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     updateProfileMutation.mutate(formData);
+  };
+
+  const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error("Please select an image file");
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image size must be less than 5MB");
+      return;
+    }
+
+    // Create preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPhotoPreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+
+    // Upload photo
+    setIsUploadingPhoto(true);
+    try {
+      const base64 = await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          resolve((reader.result as string).split(',')[1]);
+        };
+        reader.readAsDataURL(file);
+      });
+
+      await uploadPhotoMutation.mutateAsync({
+        photoBase64: base64,
+        fileName: file.name,
+      });
+    } catch (error) {
+      console.error("Photo upload error:", error);
+    } finally {
+      setIsUploadingPhoto(false);
+    }
   };
 
   if (loading || profileLoading) {
@@ -85,14 +144,37 @@ export default function ProfilePage() {
           </div>
           <div className="p-6">
             {!isEditing ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-[#f5f0f7] rounded-lg p-4 border border-[#e8dff5]">
-                  <Label className="text-[#500151] font-semibold text-sm">Name</Label>
-                  <p className="text-lg font-bold text-[#500151] mt-2">{user.name}</p>
+              <div className="space-y-6">
+                <div className="flex items-center gap-6">
+                  <Avatar className="h-24 w-24">
+                    <AvatarImage src={profile?.profilePhotoUrl || photoPreview || undefined} />
+                    <AvatarFallback className="text-lg font-bold">
+                      {user.name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'U'}
+                    </AvatarFallback>
+                  </Avatar>
+                  <label className="cursor-pointer">
+                    <div className="flex items-center gap-2 px-4 py-2 bg-[#500151] text-white rounded-lg hover:bg-[#6b1a6b] transition-colors">
+                      <Upload className="h-4 w-4" />
+                      <span>{isUploadingPhoto ? "Uploading..." : "Upload Photo"}</span>
+                    </div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handlePhotoChange}
+                      disabled={isUploadingPhoto}
+                      className="hidden"
+                    />
+                  </label>
                 </div>
-                <div className="bg-[#f5f0f7] rounded-lg p-4 border border-[#e8dff5]">
-                  <Label className="text-[#500151] font-semibold text-sm">Email</Label>
-                  <p className="text-lg font-bold text-[#500151] mt-2">{user.email}</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="bg-[#f5f0f7] rounded-lg p-4 border border-[#e8dff5]">
+                    <Label className="text-[#500151] font-semibold text-sm">Name</Label>
+                    <p className="text-lg font-bold text-[#500151] mt-2">{user.name}</p>
+                  </div>
+                  <div className="bg-[#f5f0f7] rounded-lg p-4 border border-[#e8dff5]">
+                    <Label className="text-[#500151] font-semibold text-sm">Email</Label>
+                    <p className="text-lg font-bold text-[#500151] mt-2">{user.email}</p>
+                  </div>
                 </div>
               </div>
             ) : (

@@ -89,11 +89,13 @@ export const meetings = mysqlTable("meetings", {
   location: varchar("location", { length: 255 }),
   attendees: text("attendees"), // JSON array of user IDs
   reminderSent: boolean("reminder_sent").default(false),
+  scheduleCronTaskUid: varchar("schedule_cron_task_uid", { length: 65 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, (table) => ({
   createdByIdIdx: index("meeting_created_by_id_idx").on(table.createdById),
   startTimeIdx: index("meeting_start_time_idx").on(table.startTime),
+  scheduleCronTaskUidIdx: index("meeting_schedule_cron_task_uid_idx").on(table.scheduleCronTaskUid),
 }));
 
 export type Meeting = typeof meetings.$inferSelect;

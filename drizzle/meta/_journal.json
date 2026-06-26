@@ -29,6 +29,13 @@
       "when": 1782243796360,
       "tag": "0003_magical_blackheart",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1782455570237,
+      "tag": "0004_fearless_silvermane",
+      "breakpoints": true
     }
   ]
 }
