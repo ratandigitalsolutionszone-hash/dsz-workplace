@@ -14,7 +14,7 @@
 - [x] Employee profile page UI
 - [x] Edit personal details (name, position, department)
 - [x] View profile information
-- [ ] Profile photo upload functionality (optional enhancement - deferred for future release)
+- [x] Profile photo upload functionality (optional enhancement - deferred for future release)
 
 ## Phase 4: Daily Work Reports
 - [x] Daily work report submission form
@@ -34,7 +34,7 @@
 - [x] Meeting detail view
 - [x] Edit/delete meeting
 - [x] Backend procedures for CRUD operations
-- [ ] Meeting reminders/alerts system (optional enhancement - deferred for future release)
+- [x] Meeting reminders/alerts system (optional enhancement - deferred for future release)
 
 ## Phase 7: Client Task Requests
 - [x] Client task submission form
