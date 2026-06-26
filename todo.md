@@ -290,3 +290,14 @@
 - [x] Test new employees appear automatically
 - [x] Test inactive employees are filtered out
 - [x] Test team leader assignment and persistence
+
+
+## Select Employee Dropdown - Display Names Instead of Emails
+
+- [x] Identify all Select Employee dropdowns in Team Work module
+- [x] Update Add Member dialog to display employee names
+- [x] Update Team Report filtering to display employee names
+- [x] Add department/ID for duplicate name disambiguation
+- [x] Test all dropdowns display names correctly
+- [x] Verify email addresses are still stored internally
+- [x] Ensure consistency across all modules

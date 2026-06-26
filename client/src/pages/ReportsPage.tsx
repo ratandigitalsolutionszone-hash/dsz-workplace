@@ -656,7 +656,7 @@ export default function ReportsPage() {
                       <SelectContent>
                         {eligibleEmployees?.map((emp: any) => (
                           <SelectItem key={emp.id} value={emp.id.toString()}>
-                            {emp.name} ({emp.email})
+                            {emp.name} {emp.department ? `(${emp.department})` : ''} {emp.position ? `- ${emp.position}` : ''}
                           </SelectItem>
                         ))}
                       </SelectContent>

@@ -245,7 +245,7 @@ export default function TeamWorkPage() {
                 <SelectContent>
                   {teamMembers?.map((member: any) => (
                     <SelectItem key={member.userId} value={member.userId.toString()}>
-                      {member.userName} ({member.userEmail})
+                      {member.userName} {member.userDepartment ? `(${member.userDepartment})` : ''} {member.userPosition ? `- ${member.userPosition}` : ''}
                     </SelectItem>
                   ))}
                 </SelectContent>
