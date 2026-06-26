@@ -235,8 +235,8 @@
 - [x] Implement role-based access control for reports
 - [x] Add filtering UI (date, employee, status)
 - [x] Create professional dashboard layout
-- [ ] Test team creation and member assignment
-- [ ] Test report submission under teams
-- [ ] Test filtering functionality
-- [ ] Test authorization (employee, team leader, admin)
-- [ ] Verify UI consistency with DSZ design
+- [x] Test team creation and member assignment
+- [x] Test report submission under teams
+- [x] Test filtering functionality
+- [x] Test authorization (employee, team leader, admin)
+- [x] Verify UI consistency with DSZ design
