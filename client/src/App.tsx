@@ -13,6 +13,7 @@ import MeetingsPage from "./pages/MeetingsPage";
 import TasksPage from "./pages/TasksPage";
 import DirectoryPage from "./pages/DirectoryPage";
 import AdminReportsDashboard from "./pages/AdminReportsDashboard";
+import TeamWorkPage from "./pages/TeamWorkPage";
 
 function Router() {
   return (
@@ -25,8 +26,9 @@ function Router() {
       <Route path={"/meetings"} component={MeetingsPage} />
       <Route path={"/tasks"} component={TasksPage} />
       <Route path={"/directory"} component={DirectoryPage} />
-      <Route path={"/admin-reports"} component={AdminReportsDashboard} />
-      <Route path={"/404"} component={NotFound} />
+      <Route path={"admin-reports"} component={AdminReportsDashboard} />
+      <Route path={"team-work"} component={TeamWorkPage} />
+      <Route path={"404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />
     </Switch>
