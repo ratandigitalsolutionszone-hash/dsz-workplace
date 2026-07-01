@@ -165,6 +165,18 @@ export default function ReportsPage() {
     },
   });
 
+  const submitReportToTeamMutation = trpc.teams.submitReport.useMutation({
+    onSuccess: () => {
+      toast.success('Report submitted to team successfully');
+      if (selectedTeamId) {
+        trpc.useUtils().teams.getReports.invalidate({ teamId: selectedTeamId });
+      }
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to submit report to team');
+    },
+  });
+
   const [formData, setFormData] = useState({
     reportDate: new Date().toISOString().split("T")[0],
     tasksCompleted: "",
@@ -407,6 +419,19 @@ export default function ReportsPage() {
                             >
                               <History className="w-4 h-4 mr-1" />
                               History
+                            </Button>
+                          )
+                          }
+                          {selectedTeamId && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => submitReportToTeamMutation.mutate({ teamId: selectedTeamId, reportId: report.id })}
+                              disabled={submitReportToTeamMutation.isPending}
+                              className="text-orange-600 border-orange-600 hover:bg-orange-50"
+                            >
+                              <Users className="w-4 h-4 mr-1" />
+                              {submitReportToTeamMutation.isPending ? 'Submitting...' : 'Submit to Team'}
                             </Button>
                           )}
                           <SendReportDialog reportId={report.id} reportDate={new Date(report.reportDate).toISOString().split('T')[0]} tasksCompleted={report.tasksCompleted || ""} />

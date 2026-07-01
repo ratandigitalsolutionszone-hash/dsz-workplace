@@ -704,8 +704,18 @@ export async function addTeamMember(teamId: number, userId: number) {
   const db = await getDb();
   if (!db) throw new Error('Database connection failed');
   try {
+    const existing = await db
+      .select()
+      .from(teamMembers)
+      .where(and(eq(teamMembers.teamId, teamId), eq(teamMembers.userId, userId)))
+      .limit(1);
+    
+    if (existing.length > 0) {
+      throw new Error('Member is already part of this team');
+    }
+    
     const result = await db.insert(teamMembers).values({ teamId, userId });
-    return { success: true, data: result };
+    return result;
   } catch (error: any) {
     throw new Error(error.message || 'Failed to add team member');
   }
@@ -718,7 +728,7 @@ export async function removeTeamMember(teamId: number, userId: number) {
     const result = await db
       .delete(teamMembers)
       .where(and(eq(teamMembers.teamId, teamId), eq(teamMembers.userId, userId)));
-    return { success: true, data: result };
+    return result;
   } catch (error: any) {
     throw new Error(error.message || 'Failed to remove team member');
   }
