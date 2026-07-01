@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { trpc } from "@/lib/trpc";
 import { Mail, MapPin, Briefcase, Users } from "lucide-react";
 import { useState, useMemo } from "react";
@@ -97,11 +98,12 @@ function DirectoryPageContent() {
               <div className="space-y-4">
                 {/* Avatar and Name */}
                 <div className="flex items-start justify-between">
-                  <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-lg">
-                    <span className="text-white font-bold text-xl">
+                  <Avatar className="h-14 w-14 shadow-lg">
+                    <AvatarImage src={emp.profilePhotoUrl || undefined} />
+                    <AvatarFallback className="bg-gradient-to-br from-blue-500 to-blue-600 text-white font-bold text-lg">
                       {emp.name?.charAt(0).toUpperCase() || "?"}
-                    </span>
-                  </div>
+                    </AvatarFallback>
+                  </Avatar>
                   <div className="text-right">
                     <p className="text-xs font-semibold text-blue-600 bg-blue-100 px-2 py-1 rounded-full">
                       {emp.position || "Employee"}
@@ -140,9 +142,14 @@ function DirectoryPageContent() {
                 </div>
 
                 {/* Summary Footer */}
-                <div className="bg-white rounded border border-blue-100 p-3 mt-3">
+                <div className="bg-white rounded border border-blue-100 p-3 mt-3 space-y-2">
+                  {emp.employeeId && (
+                    <p className="text-xs text-gray-600">
+                      <span className="font-semibold text-gray-800">Employee ID:</span> {emp.employeeId}
+                    </p>
+                  )}
                   <p className="text-xs text-gray-600">
-                    <span className="font-semibold text-gray-800">ID:</span> {emp.id}
+                    <span className="font-semibold text-gray-800">System ID:</span> {emp.id}
                   </p>
                 </div>
               </div>

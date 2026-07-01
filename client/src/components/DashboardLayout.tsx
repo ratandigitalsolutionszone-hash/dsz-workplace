@@ -1,5 +1,5 @@
 import { useAuth } from "@/_core/hooks/useAuth";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,6 +20,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { getLoginUrl } from "@/const";
+import { trpc } from "@/lib/trpc";
 import { useIsMobile } from "@/hooks/useMobile";
 import { LayoutDashboard, LogOut, PanelLeft, User, FileText, Bell, Calendar, Briefcase, Users, BarChart3 } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
@@ -128,6 +129,11 @@ function DashboardLayoutContent({
   const menuItems = getMenuItems(user?.role === "admin");
   const activeMenuItem = menuItems.find(item => item.path === location);
   const isMobile = useIsMobile();
+  
+  const { data: profile } = useAuth().user ? { data: { profilePhotoUrl: null } } : { data: null };
+  const { data: userProfile } = trpc.profile.get.useQuery(undefined, {
+    enabled: !!user,
+  });
 
   useEffect(() => {
     if (isCollapsed) {
@@ -223,6 +229,7 @@ function DashboardLayoutContent({
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-3 rounded-lg px-1 py-1 hover:bg-accent/50 transition-colors w-full text-left group-data-[collapsible=icon]:justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                   <Avatar className="h-9 w-9 border shrink-0">
+                    <AvatarImage src={userProfile?.profilePhotoUrl || undefined} />
                     <AvatarFallback className="text-xs font-medium">
                       {user?.name?.charAt(0).toUpperCase()}
                     </AvatarFallback>

@@ -323,3 +323,22 @@
 - [x] Remove or redirect standalone /team-work route
 - [x] Test delete functionality with various scenarios
 - [x] Test navigation reorganization thoroughly
+
+
+## Phase 16: Profile Picture Display & Employee ID Management
+- [x] Add employeeId field to employeeProfiles table schema
+- [x] Create database migration for employeeId field
+- [x] Update getAllEmployeeProfiles query to include employeeId
+- [x] Update getEmployeeProfileById query to include employeeId
+- [x] Update getAllEmployees procedure in teams router to include employeeId
+- [x] Update getAllEmployeesForLeaderSelection procedure to include employeeId
+- [x] Add Employee ID field to My Profile section (ProfilePage)
+- [x] Add employeeId input to profile.update mutation
+- [x] Update backend profile.update procedure to handle employeeId
+- [x] Update Employee Directory to display profile pictures instead of initials
+- [x] Update DashboardLayout sidebar avatar to display profile picture
+- [x] Update team member display to show profile pictures
+- [x] Test profile picture display across all pages
+- [x] Test Employee ID add/update functionality
+- [x] Verify Employee ID syncs to Employee Directory
+- [x] Verify Employee ID displays correctly in all modules

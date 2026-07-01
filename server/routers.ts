@@ -38,6 +38,7 @@ export const appRouter = router({
     update: protectedProcedure
       .input(
         z.object({
+          employeeId: z.string().optional(),
           position: z.string().optional(),
           department: z.string().optional(),
           phoneNumber: z.string().optional(),

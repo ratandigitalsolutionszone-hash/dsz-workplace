@@ -295,6 +295,7 @@ export async function getAllEmployeeProfiles() {
       id: users.id,
       name: users.name,
       email: users.email,
+      employeeId: employeeProfiles.employeeId,
       position: employeeProfiles.position,
       department: employeeProfiles.department,
       phoneNumber: employeeProfiles.phoneNumber,
@@ -318,6 +319,7 @@ export async function getEmployeeProfileById(userId: number) {
       id: users.id,
       name: users.name,
       email: users.email,
+      employeeId: employeeProfiles.employeeId,
       position: employeeProfiles.position,
       department: employeeProfiles.department,
       phoneNumber: employeeProfiles.phoneNumber,
@@ -726,9 +728,11 @@ export async function getTeamMembers(teamId: number) {
       joinedAt: teamMembers.joinedAt,
       userName: users.name,
       userEmail: users.email,
+      userProfilePhoto: employeeProfiles.profilePhotoUrl,
     })
     .from(teamMembers)
     .innerJoin(users, eq(teamMembers.userId, users.id))
+    .leftJoin(employeeProfiles, eq(users.id, employeeProfiles.userId))
     .where(eq(teamMembers.teamId, teamId));
   
   return members;
@@ -810,6 +814,7 @@ export async function getAllEmployees() {
       name: users.name,
       email: users.email,
       role: users.role,
+      employeeId: employeeProfiles.employeeId,
       position: employeeProfiles.position,
       department: employeeProfiles.department,
       profilePhotoUrl: employeeProfiles.profilePhotoUrl,

@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import SendReportDialog from "@/components/SendReportDialog";
@@ -537,10 +538,18 @@ export default function ReportsPage() {
                     {teamMembers?.map(member => (
                       <Card key={member.id} className="p-4">
                         <div className="flex items-center justify-between">
-                          <div>
-                            <p className="font-semibold text-black">{member.userName}</p>
-                            <p className="text-sm text-gray-500">{member.userEmail}</p>
-                            <p className="text-xs text-gray-400 mt-1">Joined: {format(new Date(member.joinedAt), 'MMM dd, yyyy')}</p>
+                          <div className="flex items-center gap-3 flex-1">
+                            <Avatar className="h-10 w-10">
+                              <AvatarImage src={member.userProfilePhoto || undefined} />
+                              <AvatarFallback className="bg-blue-500 text-white font-bold">
+                                {member.userName?.charAt(0).toUpperCase() || "?"}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-semibold text-black truncate">{member.userName}</p>
+                              <p className="text-sm text-gray-500 truncate">{member.userEmail}</p>
+                              <p className="text-xs text-gray-400 mt-1">Joined: {format(new Date(member.joinedAt), 'MMM dd, yyyy')}</p>
+                            </div>
                           </div>
                           {(isTeamLeader || isAdmin) && (
                             <Button

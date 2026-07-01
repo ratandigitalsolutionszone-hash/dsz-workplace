@@ -29,6 +29,7 @@ export type InsertUser = typeof users.$inferInsert;
 export const employeeProfiles = mysqlTable("employee_profiles", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("user_id").notNull(),
+  employeeId: varchar("employee_id", { length: 50 }),
   position: varchar("position", { length: 255 }),
   department: varchar("department", { length: 255 }),
   phoneNumber: varchar("phone_number", { length: 20 }),
@@ -38,6 +39,7 @@ export const employeeProfiles = mysqlTable("employee_profiles", {
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, (table) => ({
   userIdIdx: index("user_id_idx").on(table.userId),
+  employeeIdIdx: index("employee_id_idx").on(table.employeeId),
 }));
 
 export type EmployeeProfile = typeof employeeProfiles.$inferSelect;

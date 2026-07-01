@@ -42,6 +42,7 @@ export default function ProfilePage() {
   });
 
   const [formData, setFormData] = useState({
+    employeeId: "",
     position: "",
     department: "",
     phoneNumber: "",
@@ -60,6 +61,7 @@ export default function ProfilePage() {
   useEffect(() => {
     if (profile) {
       setFormData({
+        employeeId: profile.employeeId || "",
         position: profile.position || "",
         department: profile.department || "",
         phoneNumber: profile.phoneNumber || "",
@@ -201,26 +203,40 @@ export default function ProfilePage() {
           </div>
           <div className="p-6">
             {!isEditing ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-[#ffe6e6] rounded-lg p-4 border border-[#ffcccc]">
-                  <Label className="text-[#FF0000] font-semibold text-sm">Position</Label>
-                  <p className="text-lg font-bold text-[#FF0000] mt-2">{profile?.position || "Not set"}</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="bg-[#ffe6e6] rounded-lg p-4 border border-[#ffcccc]">
+                    <Label className="text-[#FF0000] font-semibold text-sm">Employee ID</Label>
+                    <p className="text-lg font-bold text-[#FF0000] mt-2">{profile?.employeeId || "Not set"}</p>
+                  </div>
+                  <div className="bg-[#ffe6e6] rounded-lg p-4 border border-[#ffcccc]">
+                    <Label className="text-[#FF0000] font-semibold text-sm">Position</Label>
+                    <p className="text-lg font-bold text-[#FF0000] mt-2">{profile?.position || "Not set"}</p>
+                  </div>
+                  <div className="bg-[#ffe6e6] rounded-lg p-4 border border-[#ffcccc]">
+                    <Label className="text-[#FF0000] font-semibold text-sm">Department</Label>
+                    <p className="text-lg font-bold text-[#FF0000] mt-2">{profile?.department || "Not set"}</p>
+                  </div>
+                  <div className="bg-[#ffe6e6] rounded-lg p-4 border border-[#ffcccc]">
+                    <Label className="text-[#FF0000] font-semibold text-sm">Phone Number</Label>
+                    <p className="text-lg font-bold text-[#FF0000] mt-2">{profile?.phoneNumber || "Not set"}</p>
+                  </div>
+                  <div className="bg-[#ffe6e6] rounded-lg p-4 border border-[#ffcccc] md:col-span-2">
+                    <Label className="text-[#FF0000] font-semibold text-sm">Bio</Label>
+                    <p className="text-base text-[#FF0000] mt-2 line-clamp-3">{profile?.bio || "Not set"}</p>
+                  </div>
                 </div>
-                <div className="bg-[#ffe6e6] rounded-lg p-4 border border-[#ffcccc]">
-                  <Label className="text-[#FF0000] font-semibold text-sm">Department</Label>
-                  <p className="text-lg font-bold text-[#FF0000] mt-2">{profile?.department || "Not set"}</p>
-                </div>
-                <div className="bg-[#ffe6e6] rounded-lg p-4 border border-[#ffcccc]">
-                  <Label className="text-[#FF0000] font-semibold text-sm">Phone Number</Label>
-                  <p className="text-lg font-bold text-[#FF0000] mt-2">{profile?.phoneNumber || "Not set"}</p>
-                </div>
-                <div className="bg-[#ffe6e6] rounded-lg p-4 border border-[#ffcccc]">
-                  <Label className="text-[#FF0000] font-semibold text-sm">Bio</Label>
-                  <p className="text-base text-[#FF0000] mt-2 line-clamp-3">{profile?.bio || "Not set"}</p>
-                </div>
-              </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <Label htmlFor="employeeId" className="text-[#FF0000] font-semibold">Employee ID</Label>
+                  <Input
+                    id="employeeId"
+                    value={formData.employeeId}
+                    onChange={(e) => setFormData({ ...formData, employeeId: e.target.value })}
+                    placeholder="e.g., EMP-001"
+                    className="mt-2 border-[#ffcccc] focus:border-[#FF0000]"
+                  />
+                </div>
                 <div>
                   <Label htmlFor="position" className="text-[#FF0000] font-semibold">Position</Label>
                   <Input
