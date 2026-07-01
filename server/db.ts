@@ -702,19 +702,26 @@ export async function deleteTeam(teamId: number) {
 // Team Member Functions
 export async function addTeamMember(teamId: number, userId: number) {
   const db = await getDb();
-  if (!db) return undefined;
-
-  const result = await db.insert(teamMembers).values({ teamId, userId });
-  return result;
+  if (!db) throw new Error('Database connection failed');
+  try {
+    const result = await db.insert(teamMembers).values({ teamId, userId });
+    return { success: true, data: result };
+  } catch (error: any) {
+    throw new Error(error.message || 'Failed to add team member');
+  }
 }
 
 export async function removeTeamMember(teamId: number, userId: number) {
   const db = await getDb();
-  if (!db) return undefined;
-
-  return db
-    .delete(teamMembers)
-    .where(and(eq(teamMembers.teamId, teamId), eq(teamMembers.userId, userId)));
+  if (!db) throw new Error('Database connection failed');
+  try {
+    const result = await db
+      .delete(teamMembers)
+      .where(and(eq(teamMembers.teamId, teamId), eq(teamMembers.userId, userId)));
+    return { success: true, data: result };
+  } catch (error: any) {
+    throw new Error(error.message || 'Failed to remove team member');
+  }
 }
 
 export async function getTeamMembers(teamId: number) {
