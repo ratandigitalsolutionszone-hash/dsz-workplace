@@ -153,6 +153,17 @@ export default function ReportsPage() {
     },
   });
 
+  const deleteTeamMutation = trpc.teams.delete.useMutation({
+    onSuccess: () => {
+      toast.success('Team deleted successfully');
+      setSelectedTeamId(null);
+      refetchTeams();
+    },
+    onError: () => {
+      toast.error('Failed to delete team');
+    },
+  });
+
   const [formData, setFormData] = useState({
     reportDate: new Date().toISOString().split("T")[0],
     tasksCompleted: "",
@@ -219,7 +230,15 @@ export default function ReportsPage() {
     });
   };
 
-  const handleAssignLeader = (teamId: number, userId: number) => {
+  const handleDeleteTeam = async (teamId: number) => {
+    try {
+      await deleteTeamMutation.mutateAsync({ teamId });
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to delete team');
+    }
+  };
+
+  const handleAssignLeader = async (teamId: number, userId: number) => {
     assignLeaderMutation.mutate({ teamId, userId });
   };
 
@@ -460,12 +479,27 @@ export default function ReportsPage() {
             {/* Teams List */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {teams?.map(team => (
-                <Card key={team.id} className="p-6 cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setSelectedTeamId(team.id)}>
+                <Card key={team.id} className="p-6 hover:shadow-lg transition-shadow">
                   <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 flex-1 cursor-pointer" onClick={() => setSelectedTeamId(team.id)}>
                       <Users className="w-6 h-6 text-green-600" />
                       <h3 className="font-bold text-lg text-black">{team.name}</h3>
                     </div>
+                    {isAdmin && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (window.confirm('Are you sure you want to delete this team? This action cannot be undone.')) {
+                            handleDeleteTeam(team.id);
+                          }
+                        }}
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    )}
                   </div>
                   {team.description && <p className="text-gray-600 mb-2">{team.description}</p>}
                   <div className="text-sm text-gray-500">

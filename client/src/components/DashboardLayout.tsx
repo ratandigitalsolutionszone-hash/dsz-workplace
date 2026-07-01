@@ -35,7 +35,6 @@ const getMenuItems = (isAdmin: boolean) => {
     { icon: Bell, label: "Company Notices", path: "/notices" },
     { icon: Calendar, label: "Meetings", path: "/meetings" },
     { icon: Briefcase, label: "Client Tasks", path: "/tasks" },
-    { icon: Users, label: "Team Work", path: "/team-work" },
     { icon: Users, label: "Employee Directory", path: "/directory" },
   ];
 
