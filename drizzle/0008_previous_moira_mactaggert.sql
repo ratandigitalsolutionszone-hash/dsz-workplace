@@ -1,0 +1,1 @@
+ALTER TABLE `daily_reports` ADD `report_status` enum('draft','submitted','reviewed','approved') DEFAULT 'draft' NOT NULL;

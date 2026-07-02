@@ -1,4 +1,4 @@
-import { eq, and, desc, gte, lte, or } from "drizzle-orm";
+import { eq, and, desc, gte, lte, or, inArray, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import {
   InsertUser,
@@ -839,4 +839,181 @@ export async function getAllEmployees() {
     .from(users)
     .leftJoin(employeeProfiles, eq(users.id, employeeProfiles.userId))
     .where(eq(users.role, 'user'));
+}
+
+
+// Task Reports Functions for Team Leaders and Admins
+export async function getTaskReportsForTeamLeader(
+  teamLeaderId: number,
+  filters?: {
+    teamId?: number;
+    userId?: number;
+    startDate?: Date;
+    endDate?: Date;
+    searchQuery?: string;
+  }
+) {
+  const db = await getDb();
+  if (!db) return [];
+
+  // Get all teams where this user is the team leader
+  const leaderTeams = await db
+    .select({ id: teams.id })
+    .from(teams)
+    .where(eq(teams.teamLeaderId, teamLeaderId));
+
+  const teamIds = leaderTeams.map(t => t.id);
+  if (teamIds.length === 0) return [];
+
+  // Build conditions array
+  const conditions: any[] = [];
+
+  // Filter by specific team if provided
+  if (filters?.teamId) {
+    conditions.push(eq(teamMembers.teamId, filters.teamId));
+  } else {
+    conditions.push(inArray(teamMembers.teamId, teamIds));
+  }
+
+  // Filter by user if provided
+  if (filters?.userId) {
+    conditions.push(eq(teamMembers.userId, filters.userId));
+  }
+
+  // Filter by date range
+  if (filters?.startDate) {
+    conditions.push(gte(dailyReports.reportDate, filters.startDate));
+  }
+  if (filters?.endDate) {
+    conditions.push(lte(dailyReports.reportDate, filters.endDate));
+  }
+
+  // Build the query with proper where clause
+  let results = await db
+    .select({
+      reportId: dailyReports.id,
+      employeeName: users.name,
+      employeeId: employeeProfiles.employeeId,
+      employeeEmail: users.email,
+      teamName: teams.name,
+      reportDate: dailyReports.reportDate,
+      tasksCompleted: dailyReports.tasksCompleted,
+      hoursWorked: dailyReports.hoursWorked,
+      notes: dailyReports.notes,
+      reportStatus: dailyReports.reportStatus,
+      submittedAt: dailyReports.createdAt,
+      lastEditedAt: dailyReports.lastEditedAt,
+    })
+    .from(teamMembers)
+    .innerJoin(teams, eq(teamMembers.teamId, teams.id))
+    .innerJoin(users, eq(teamMembers.userId, users.id))
+    .innerJoin(dailyReports, eq(users.id, dailyReports.userId))
+    .leftJoin(employeeProfiles, eq(users.id, employeeProfiles.userId))
+    .where(and(...conditions))
+    .orderBy(desc(dailyReports.reportDate));
+
+  // Apply search filter if provided
+  if (filters?.searchQuery) {
+    const searchQuery = filters.searchQuery.toLowerCase();
+    results = results.filter(
+      r =>
+        r.employeeName?.toLowerCase().includes(searchQuery) ||
+        r.employeeId?.toLowerCase().includes(searchQuery) ||
+        r.tasksCompleted?.toLowerCase().includes(searchQuery)
+    );
+  }
+
+  return results;
+}
+
+export async function getTaskReportsForAdmin(
+  filters?: {
+    teamId?: number;
+    userId?: number;
+    startDate?: Date;
+    endDate?: Date;
+    searchQuery?: string;
+  }
+) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const conditions: any[] = [];
+
+  // Filter by user if provided
+  if (filters?.userId) {
+    conditions.push(eq(dailyReports.userId, filters.userId));
+  }
+
+  // Filter by date range
+  if (filters?.startDate) {
+    conditions.push(gte(dailyReports.reportDate, filters.startDate));
+  }
+  if (filters?.endDate) {
+    conditions.push(lte(dailyReports.reportDate, filters.endDate));
+  }
+
+  // For team filter, we need to handle it differently since it's optional
+  let results: any[] = [];
+  
+  if (filters?.teamId) {
+    // If team filter is provided, join with team tables
+    results = await db
+      .select({
+        reportId: dailyReports.id,
+        employeeName: users.name,
+        employeeId: employeeProfiles.employeeId,
+        employeeEmail: users.email,
+        teamName: teams.name,
+        reportDate: dailyReports.reportDate,
+        tasksCompleted: dailyReports.tasksCompleted,
+        hoursWorked: dailyReports.hoursWorked,
+        notes: dailyReports.notes,
+        reportStatus: dailyReports.reportStatus,
+        submittedAt: dailyReports.createdAt,
+        lastEditedAt: dailyReports.lastEditedAt,
+      })
+      .from(dailyReports)
+      .innerJoin(users, eq(dailyReports.userId, users.id))
+      .leftJoin(employeeProfiles, eq(users.id, employeeProfiles.userId))
+      .innerJoin(teamMembers, eq(users.id, teamMembers.userId))
+      .innerJoin(teams, eq(teamMembers.teamId, teams.id))
+      .where(and(eq(teams.id, filters.teamId), ...conditions))
+      .orderBy(desc(dailyReports.reportDate));
+  } else {
+    // If no team filter, get all reports
+    results = await db
+      .select({
+        reportId: dailyReports.id,
+        employeeName: users.name,
+        employeeId: employeeProfiles.employeeId,
+        employeeEmail: users.email,
+        teamName: null as any,
+        reportDate: dailyReports.reportDate,
+        tasksCompleted: dailyReports.tasksCompleted,
+        hoursWorked: dailyReports.hoursWorked,
+        notes: dailyReports.notes,
+        reportStatus: dailyReports.reportStatus,
+        submittedAt: dailyReports.createdAt,
+        lastEditedAt: dailyReports.lastEditedAt,
+      })
+      .from(dailyReports)
+      .innerJoin(users, eq(dailyReports.userId, users.id))
+      .leftJoin(employeeProfiles, eq(users.id, employeeProfiles.userId))
+      .where(conditions.length > 0 ? and(...conditions) : undefined)
+      .orderBy(desc(dailyReports.reportDate));
+  }
+
+  // Apply search filter if provided
+  if (filters?.searchQuery) {
+    const searchQuery = filters.searchQuery.toLowerCase();
+    results = results.filter(
+      r =>
+        r.employeeName?.toLowerCase().includes(searchQuery) ||
+        r.employeeId?.toLowerCase().includes(searchQuery) ||
+        r.tasksCompleted?.toLowerCase().includes(searchQuery)
+    );
+  }
+
+  return results;
 }

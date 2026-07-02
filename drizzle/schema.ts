@@ -53,6 +53,7 @@ export const dailyReports = mysqlTable("daily_reports", {
   tasksCompleted: text("tasks_completed"),
   hoursWorked: decimal("hours_worked", { precision: 5, scale: 2 }),
   notes: text("notes"),
+  reportStatus: mysqlEnum("report_status", ["draft", "submitted", "reviewed", "approved"]).default("draft").notNull(),
   lastEditedBy: int("last_edited_by"),
   lastEditedAt: timestamp("last_edited_at"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),

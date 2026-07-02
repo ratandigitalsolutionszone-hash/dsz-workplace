@@ -358,3 +358,23 @@
 - [x] Verify TypeScript compilation succeeds
 - [x] End-to-end testing of add/remove member notifications
 - [x] End-to-end testing of View Report functionality
+
+
+## Phase 18: View Task Reports Feature for Team Leaders and Admins
+- [x] Review database schema for daily reports and team relationships
+- [x] Create backend query to fetch task reports with role-based filtering
+- [x] Create tRPC procedure for Team Leaders to view team member reports
+- [x] Create tRPC procedure for Admins to view all reports
+- [x] Add report status field to daily_reports table if needed
+- [x] Design TaskReportsViewer component with professional table layout
+- [x] Implement filtering by team, employee, date, and status
+- [x] Implement search functionality for employee name and report details
+- [x] Add sorting by date and employee name
+- [x] Add pagination for large report lists
+- [x] Integrate TaskReportsViewer into Team Work section
+- [x] Add "View Task Reports" button/tab in Team Work section
+- [x] Style the component to match existing design system
+- [x] Write unit tests for backend procedures
+- [x] Write unit tests for component filtering and sorting
+- [x] Perform end-to-end testing with different user roles
+- [x] Test with large datasets to verify performance

@@ -671,6 +671,34 @@ export const appRouter = router({
         }
         return db.addTeamReport(input.teamId, input.reportId);
       }),
+
+    getTaskReports: protectedProcedure
+      .input(z.object({
+        teamId: z.number().optional(),
+        userId: z.number().optional(),
+        startDate: z.date().optional(),
+        endDate: z.date().optional(),
+        searchQuery: z.string().optional(),
+      }))
+      .query(async ({ ctx, input }) => {
+        if (ctx.user.role === 'admin') {
+          return db.getTaskReportsForAdmin({
+            teamId: input.teamId,
+            userId: input.userId,
+            startDate: input.startDate,
+            endDate: input.endDate,
+            searchQuery: input.searchQuery,
+          });
+        } else {
+          return db.getTaskReportsForTeamLeader(ctx.user.id, {
+            teamId: input.teamId,
+            userId: input.userId,
+            startDate: input.startDate,
+            endDate: input.endDate,
+            searchQuery: input.searchQuery,
+          });
+        }
+      }),
   }),
 });
 

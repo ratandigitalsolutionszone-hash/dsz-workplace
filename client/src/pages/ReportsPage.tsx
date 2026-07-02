@@ -13,6 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import SendReportDialog from "@/components/SendReportDialog";
+import { TaskReportsViewer } from "@/components/TaskReportsViewer";
 import { Calendar, Clock, FileText, CheckCircle2, AlertCircle, Edit2, History, Users, Plus, Trash2, Eye } from "lucide-react";
 import { format } from "date-fns";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -29,6 +30,7 @@ export default function ReportsPage() {
   const [showCreateTeam, setShowCreateTeam] = useState(false);
   const [showAddMember, setShowAddMember] = useState(false);
   const [showReports, setShowReports] = useState(false);
+  const [showTaskReports, setShowTaskReports] = useState(false);
   const [teamName, setTeamName] = useState('');
   const [teamDescription, setTeamDescription] = useState('');
   const [selectedLeaderId, setSelectedLeaderId] = useState<number | null>(null);
@@ -535,6 +537,21 @@ export default function ReportsPage() {
               ))}
             </div>
 
+            {/* Task Reports Viewer for Admins and Team Leaders */}
+            {(isAdmin || (selectedTeam && user?.id === selectedTeam.teamLeaderId)) && (
+              <Card className="p-6 bg-blue-50">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-xl font-bold text-black">View All Task Reports</h3>
+                  <Button onClick={() => setShowTaskReports(!showTaskReports)} variant="outline" className="border-blue-600 text-blue-600">
+                    {showTaskReports ? 'Hide' : 'Show'} Reports
+                  </Button>
+                </div>
+                {showTaskReports && (
+                  <TaskReportsViewer teamId={selectedTeamId || undefined} />
+                )}
+              </Card>
+            )}
+
             {/* Selected Team Details */}
             {selectedTeam && (
               <div className="space-y-6">
@@ -608,12 +625,12 @@ export default function ReportsPage() {
                         </div>
                         <div>
                           <Label>Employee</Label>
-                          <Select onValueChange={(value) => setFilterUserId(value ? parseInt(value) : null)}>
+                          <Select onValueChange={(value) => setFilterUserId(value === "all" ? null : parseInt(value))}>
                             <SelectTrigger>
                               <SelectValue placeholder="All employees" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="">All employees</SelectItem>
+                              <SelectItem value="all">All employees</SelectItem>
                               {teamMembers?.map(member => (
                                 <SelectItem key={member.userId} value={member.userId.toString()}>
                                   {member.userName}
