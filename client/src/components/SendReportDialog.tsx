@@ -45,9 +45,25 @@ export default function SendReportDialog({
       setSelectedRecipients([]);
       setSubject(`Daily Report - ${reportDate}`);
       refetchHistory();
+      setIsOpen(false);
     },
     onError: (error) => {
-      toast.error(error.message || "Failed to send report");
+      const errorMessage = error.message || "Failed to send report";
+      
+      // Provide specific guidance for common errors
+      if (errorMessage.includes("Gmail token expired") || errorMessage.includes("could not be refreshed")) {
+        toast.error("Gmail connection expired. Please reconnect your Gmail account in your profile settings.", {
+          duration: 5000,
+        });
+      } else if (errorMessage.includes("Gmail account not connected")) {
+        toast.error("Gmail account not connected. Please connect your Gmail account in your profile settings.", {
+          duration: 5000,
+        });
+      } else {
+        toast.error(errorMessage, {
+          duration: 5000,
+        });
+      }
     },
   });
 

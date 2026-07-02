@@ -71,21 +71,41 @@ export async function refreshAccessToken(
       return null;
     }
 
+    console.log("[Gmail OAuth] Attempting to refresh access token...");
     const oauth2Client = createOAuth2Client();
     oauth2Client.setCredentials({ refresh_token: refreshToken });
-    const { credentials } = await oauth2Client.refreshAccessToken();
+    
+    let credentials;
+    try {
+      const result = await oauth2Client.refreshAccessToken();
+      credentials = result.credentials;
+    } catch (refreshError: any) {
+      console.error("[Gmail OAuth] Token refresh failed:", {
+        message: refreshError.message,
+        code: refreshError.code,
+        status: refreshError.status,
+      });
+      
+      // Check if it's an invalid_grant error (token revoked or expired)
+      if (refreshError.message?.includes('invalid_grant')) {
+        console.error("[Gmail OAuth] Refresh token is invalid or has been revoked. User needs to reconnect.");
+      }
+      
+      return null;
+    }
     
     if (!credentials.access_token) {
-      console.error("[Gmail OAuth] Failed to get new access token");
+      console.error("[Gmail OAuth] Failed to get new access token from refresh");
       return null;
     }
 
+    console.log("[Gmail OAuth] Successfully refreshed access token");
     return {
       accessToken: credentials.access_token,
       expiresAt: credentials.expiry_date ? new Date(credentials.expiry_date) : new Date(Date.now() + 3600000),
     };
   } catch (error) {
-    console.error("[Gmail OAuth] Error refreshing token:", error);
+    console.error("[Gmail OAuth] Unexpected error refreshing token:", error);
     return null;
   }
 }
