@@ -88,15 +88,15 @@ export default function SendReportDialog({
           Send Report
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
+      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col p-0">
+        <DialogHeader className="px-6 pt-6 pb-0 flex-shrink-0">
           <DialogTitle>Send Daily Report</DialogTitle>
           <DialogDescription>
             Share your daily report with team members or managers
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
           {/* Report Preview */}
           <Card className="p-4 bg-gradient-to-r from-[#f5f0f7] to-[#f9f7fc] border-[#e8dff5]">
             <h4 className="font-semibold text-[#500151] mb-3">Report Summary</h4>
@@ -169,25 +169,26 @@ export default function SendReportDialog({
             </Card>
           )}
 
-          {/* Action Buttons */}
-          <div className="flex gap-3 justify-end">
-            <Button
-              variant="cancel"
-              onClick={() => setIsOpen(false)}
-              className="gap-2"
-            >
-              <X className="w-4 h-4" />
-              Cancel
-            </Button>
-            <Button
-              onClick={handleSendReport}
-              disabled={sendMutation.isPending || selectedRecipients.length === 0}
-              className="gap-2 bg-blue-600 hover:bg-blue-700"
-            >
-              <Send className="w-4 h-4" />
-              {sendMutation.isPending ? "Sending..." : "Send Report"}
-            </Button>
-          </div>
+        </div>
+
+        {/* Fixed Action Buttons */}
+        <div className="flex gap-3 justify-end px-6 py-4 border-t bg-white flex-shrink-0">
+          <Button
+            variant="cancel"
+            onClick={() => setIsOpen(false)}
+            className="gap-2"
+          >
+            <X className="w-4 h-4" />
+            Cancel
+          </Button>
+          <Button
+            onClick={handleSendReport}
+            disabled={sendMutation.isPending || selectedRecipients.length === 0}
+            className="gap-2 bg-blue-600 hover:bg-blue-700"
+          >
+            <Send className="w-4 h-4" />
+            {sendMutation.isPending ? "Sending..." : "Send Report"}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

@@ -391,3 +391,14 @@
 - [x] Verify email is sent successfully after token refresh
 - [x] Test with multiple recipients
 - [x] Verify send history is updated correctly
+
+
+## Phase 20: Fix Send Report Dialog Responsiveness
+- [x] Review SendReportDialog component sizing and layout
+- [x] Refactor dialog to use responsive max-height with scrollable content area
+- [x] Fix action buttons to remain fixed at bottom of dialog
+- [x] Ensure dialog fits within viewport on standard desktop displays
+- [x] Add responsive padding and margins for different screen sizes
+- [x] Test on mobile, tablet, and desktop viewports
+- [x] Verify buttons are always accessible without scrolling
+- [x] Test with long content to ensure proper scrolling behavior
