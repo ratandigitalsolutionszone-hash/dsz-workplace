@@ -37,6 +37,7 @@ export function TaskReportsViewer({ teamId }: TaskReportsViewerProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'date' | 'employee'>('date');
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedReport, setSelectedReport] = useState<TaskReport | null>(null);
   const itemsPerPage = 10;
 
   // Fetch teams for filter
@@ -251,9 +252,15 @@ export function TaskReportsViewer({ teamId }: TaskReportsViewerProps) {
                             </Badge>
                           </TableCell>
                           <TableCell className="max-w-md text-sm text-gray-600">
-                            <div className="line-clamp-2">
-                              {report.tasksCompleted || '-'}
-                            </div>
+                            <Button 
+                              variant="ghost" 
+                              className="text-blue-600 hover:text-blue-800 text-left h-auto p-0 justify-start"
+                              onClick={() => setSelectedReport(report)}
+                            >
+                              <div className="line-clamp-2">
+                                {report.tasksCompleted || '-'}
+                              </div>
+                            </Button>
                           </TableCell>
                           <TableCell className="text-sm text-gray-500">
                             {format(new Date(report.submittedAt), 'MMM dd, HH:mm')}
@@ -295,6 +302,80 @@ export function TaskReportsViewer({ teamId }: TaskReportsViewerProps) {
           )}
         </CardContent>
       </Card>
+      {/* Report Detail Modal */}
+      {selectedReport && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <CardHeader className="sticky top-0 bg-white border-b z-10">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Task Report Details</CardTitle>
+                  <CardDescription>
+                    {selectedReport?.employeeName} • {selectedReport && selectedReport.reportDate ? format(new Date(selectedReport.reportDate as Date), 'MMM dd, yyyy') : 'N/A'}
+                  </CardDescription>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSelectedReport(null)}
+                >
+                  ✕
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4 pt-4">
+              <div>
+                <h4 className="font-semibold text-sm text-gray-700 mb-2">Employee Information</h4>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-gray-600">Name:</span>
+                    <p className="font-medium">{selectedReport?.employeeName}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Employee ID:</span>
+                    <p className="font-medium">{selectedReport?.employeeId || '-'}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Team:</span>
+                    <p className="font-medium">{selectedReport?.teamName || '-'}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Report Date:</span>
+                    <p className="font-medium">{format(new Date(selectedReport?.reportDate), 'MMM dd, yyyy')}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="border-t pt-4">
+                <h4 className="font-semibold text-sm text-gray-700 mb-2">Tasks Completed</h4>
+                <div className="bg-gray-50 p-4 rounded border border-gray-200 whitespace-pre-wrap text-sm text-gray-700 font-mono">
+                  {selectedReport?.tasksCompleted || 'No tasks recorded'}
+                </div>
+              </div>
+
+              {selectedReport?.notes && (
+                <div className="border-t pt-4">
+                  <h4 className="font-semibold text-sm text-gray-700 mb-2">Notes</h4>
+                  <div className="bg-gray-50 p-4 rounded border border-gray-200 whitespace-pre-wrap text-sm text-gray-700 font-mono">
+                    {selectedReport?.notes}
+                  </div>
+                </div>
+              )}
+
+              <div className="border-t pt-4 grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="text-gray-600">Hours Worked:</span>
+                  <p className="font-medium">{selectedReport?.hoursWorked || '-'}</p>
+                </div>
+                <div>
+                  <span className="text-gray-600">Submitted:</span>
+                  <p className="font-medium">{selectedReport && selectedReport.submittedAt ? format(new Date(selectedReport.submittedAt), 'MMM dd, HH:mm') : 'N/A'}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }

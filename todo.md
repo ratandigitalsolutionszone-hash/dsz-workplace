@@ -426,3 +426,14 @@
 - [x] Verify Admin still has access to all reports
 - [x] Test UI changes with different user roles
 - [x] Verify no broken links or missing functionality
+
+
+## Phase 23: Fix Report Formatting Preservation in Team Work Section
+- [x] Investigate how task report content is stored in database
+- [x] Check how reports are retrieved in TaskReportsViewer component
+- [x] Identify where formatting is being lost or stripped
+- [x] Implement whitespace-pre-wrap or markdown rendering for task details
+- [x] Preserve line breaks, paragraphs, lists, and indentation
+- [x] Test with reports containing various formatting elements
+- [x] Verify formatting consistency between Submit Daily Reports and Team Work sections
+- [x] Perform end-to-end testing with different report formats
