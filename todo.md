@@ -416,3 +416,13 @@
 - [x] Test with Team Leader account to verify filtering works
 - [x] Test with Admin account to verify full access
 - [x] Verify Team Leaders cannot access other team's reports
+
+
+## Phase 22: Remove View All Task Reports Button
+- [x] Review Team Work section in ReportsPage
+- [x] Remove "View All Task Reports" button
+- [x] Keep "View Reports" button for team-specific viewing
+- [x] Ensure Team Leaders only see their team's reports
+- [x] Verify Admin still has access to all reports
+- [x] Test UI changes with different user roles
+- [x] Verify no broken links or missing functionality
