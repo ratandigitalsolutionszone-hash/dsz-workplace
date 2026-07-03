@@ -402,3 +402,17 @@
 - [x] Test on mobile, tablet, and desktop viewports
 - [x] Verify buttons are always accessible without scrolling
 - [x] Test with long content to ensure proper scrolling behavior
+
+
+## Phase 21: Implement Role-Based Access Control for View Reports
+- [x] Review current getTeamReports backend procedure
+- [x] Update getTeamReports to filter by user role (Admin vs Team Leader)
+- [x] Add team membership check for Team Leaders
+- [x] Ensure Team Leaders only see reports from their team members
+- [x] Ensure Admins see all reports from all teams
+- [x] Update TaskReportsViewer to handle team-filtered data
+- [x] Remove team filter dropdown for Team Leaders (show only their team)
+- [x] Keep team filter for Admins to view different teams
+- [x] Test with Team Leader account to verify filtering works
+- [x] Test with Admin account to verify full access
+- [x] Verify Team Leaders cannot access other team's reports

@@ -101,7 +101,7 @@ export function TaskReportsViewer({ teamId }: TaskReportsViewerProps) {
           {/* Filters */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Team Filter (Admin only or for Team Leaders) */}
-            {user.role === 'admin' && (
+            {user?.role === 'admin' && (
               <div>
                 <label className="text-sm font-medium">Team</label>
                 <Select value={selectedTeamId?.toString() || 'all'} onValueChange={(value) => {
