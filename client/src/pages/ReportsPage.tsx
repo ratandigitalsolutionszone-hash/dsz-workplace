@@ -594,69 +594,9 @@ export default function ReportsPage() {
                   </div>
                 </div>
 
-                {/* Team Reports */}
+                {/* Task Reports Viewer */}
                 {showReports && (
-                  <div className="space-y-4">
-                    <div className="bg-white p-4 rounded-lg border border-gray-200">
-                      <h3 className="text-lg font-bold text-black mb-4">Filter Reports</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                          <Label>Start Date</Label>
-                          <Input type="date" onChange={(e) => setFilterStartDate(e.target.value ? new Date(e.target.value) : null)} />
-                        </div>
-                        <div>
-                          <Label>End Date</Label>
-                          <Input type="date" onChange={(e) => setFilterEndDate(e.target.value ? new Date(e.target.value) : null)} />
-                        </div>
-                        <div>
-                          <Label>Employee</Label>
-                          <Select onValueChange={(value) => setFilterUserId(value === "all" ? null : parseInt(value))}>
-                            <SelectTrigger>
-                              <SelectValue placeholder="All employees" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="all">All employees</SelectItem>
-                              {teamMembers?.map(member => (
-                                <SelectItem key={member.userId} value={member.userId.toString()}>
-                                  {member.userName}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-bold text-black">Reports ({teamReports?.length || 0})</h3>
-                      {teamReports?.map(report => (
-                        <Card key={report.id} className="p-4">
-                          <div className="grid grid-cols-2 gap-4">
-                            <div>
-                              <p className="text-sm text-gray-500">Employee</p>
-                              <p className="font-semibold text-black">{report.userName}</p>
-                            </div>
-                            <div>
-                              <p className="text-sm text-gray-500">Report Date</p>
-                              <p className="font-semibold text-black">{format(new Date(report.reportDate), 'MMM dd, yyyy')}</p>
-                            </div>
-                            <div>
-                              <p className="text-sm text-gray-500">Tasks Completed</p>
-                              <p className="text-black">{report.tasksCompleted}</p>
-                            </div>
-                            <div>
-                              <p className="text-sm text-gray-500">Hours Worked</p>
-                              <p className="text-black">{report.hoursWorked}</p>
-                            </div>
-                            <div className="col-span-2">
-                              <p className="text-sm text-gray-500">Notes</p>
-                              <p className="text-black">{report.notes}</p>
-                            </div>
-                          </div>
-                        </Card>
-                      ))}
-                    </div>
-                  </div>
+                  <TaskReportsViewer teamId={selectedTeamId || undefined} />
                 )}
               </div>
             )}

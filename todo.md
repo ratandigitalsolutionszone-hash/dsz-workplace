@@ -437,3 +437,13 @@
 - [x] Test with reports containing various formatting elements
 - [x] Verify formatting consistency between Submit Daily Reports and Team Work sections
 - [x] Perform end-to-end testing with different report formats
+
+
+## Phase 24: Fix Report Formatting Preservation (Proper Investigation)
+- [x] Verify how report content is stored in database (check if formatting is preserved in storage)
+- [x] Check if modal opens correctly when clicking on report rows
+- [x] Verify whitespace-pre-wrap CSS is applied to task details in modal
+- [x] Compare Submit Daily Reports display with Team Work display
+- [x] Test with sample report containing paragraphs, lists, and links
+- [x] Verify line breaks and indentation are preserved
+- [x] Ensure modal displays full content without truncation

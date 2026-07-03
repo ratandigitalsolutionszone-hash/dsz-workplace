@@ -251,15 +251,14 @@ export function TaskReportsViewer({ teamId }: TaskReportsViewerProps) {
                               {(report.reportStatus || 'draft').charAt(0).toUpperCase() + (report.reportStatus || 'draft').slice(1)}
                             </Badge>
                           </TableCell>
-                          <TableCell className="max-w-md text-sm text-gray-600">
+                          <TableCell className="text-sm text-gray-600">
                             <Button 
-                              variant="ghost" 
-                              className="text-blue-600 hover:text-blue-800 text-left h-auto p-0 justify-start"
+                              variant="outline" 
+                              size="sm"
                               onClick={() => setSelectedReport(report)}
+                              className="text-blue-600 hover:text-blue-800 hover:bg-blue-50"
                             >
-                              <div className="line-clamp-2">
-                                {report.tasksCompleted || '-'}
-                              </div>
+                              View Details
                             </Button>
                           </TableCell>
                           <TableCell className="text-sm text-gray-500">
