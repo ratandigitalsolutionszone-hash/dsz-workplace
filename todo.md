@@ -447,3 +447,20 @@
 - [x] Test with sample report containing paragraphs, lists, and links
 - [x] Verify line breaks and indentation are preserved
 - [x] Ensure modal displays full content without truncation
+
+
+## Phase 25: Remove Employee Feature for Employee Directory
+- [x] Review database schema for users and employeeProfiles tables
+- [x] Plan backend procedure for removing employee (admin-only)
+- [x] Implement employee removal procedure with team cleanup
+- [x] Ensure historical reports are preserved after removal
+- [x] Add deactivation flag to users table if needed
+- [x] Add Remove button to Employee Directory UI (admin-only)
+- [x] Create confirmation dialog for employee removal
+- [x] Implement removal mutation with error handling
+- [x] Display success/error notifications
+- [x] Test employee removal with various scenarios
+- [x] Verify team membership cleanup works correctly
+- [x] Verify historical data is preserved
+- [x] Test authorization (only admins can remove)
+- [x] Perform end-to-end testing

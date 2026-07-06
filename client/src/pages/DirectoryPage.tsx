@@ -1,20 +1,44 @@
-import { useAuth } from "@/_core/hooks/useAuth";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { trpc } from "@/lib/trpc";
-import { Mail, MapPin, Briefcase, Users } from "lucide-react";
+import { Mail, MapPin, Briefcase, Users, Trash2 } from "lucide-react";
 import { useState, useMemo } from "react";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { toast } from "sonner";
 
 function DirectoryPageContent() {
   const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState<string | null>(null);
+  const [employeeToRemove, setEmployeeToRemove] = useState<any | null>(null);
+  const [isRemoving, setIsRemoving] = useState(false);
 
-  const { data: employees, isLoading } = trpc.directory.getAllEmployees.useQuery();
+  const { data: employees, isLoading, refetch } = trpc.directory.getAllEmployees.useQuery();
+  const removeEmployeeMutation = trpc.directory.removeEmployee.useMutation({
+    onSuccess: () => {
+      toast.success("Employee removed successfully");
+      setEmployeeToRemove(null);
+      refetch();
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to remove employee");
+    },
+  });
+
+  const handleRemoveEmployee = async () => {
+    if (!employeeToRemove) return;
+    setIsRemoving(true);
+    try {
+      await removeEmployeeMutation.mutateAsync({ userId: employeeToRemove.id });
+    } finally {
+      setIsRemoving(false);
+    }
+  };
 
   const filteredEmployees = useMemo(() => {
     if (!employees) return [];
@@ -152,6 +176,21 @@ function DirectoryPageContent() {
                     <span className="font-semibold text-gray-800">System ID:</span> {emp.id}
                   </p>
                 </div>
+
+                {/* Admin Actions */}
+                {user?.role === 'admin' && (
+                  <div className="pt-3 border-t border-blue-200">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setEmployeeToRemove(emp)}
+                      className="w-full text-red-600 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Remove Employee
+                    </Button>
+                  </div>
+                )}
               </div>
             </Card>
           ))
@@ -175,6 +214,47 @@ function DirectoryPageContent() {
           </p>
         </Card>
       )}
+
+      {/* Remove Employee Confirmation Dialog */}
+      <Dialog open={!!employeeToRemove} onOpenChange={(open) => !open && setEmployeeToRemove(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Remove Employee</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-gray-700">
+              Are you sure you want to remove <span className="font-bold">{employeeToRemove?.name}</span>? This action cannot be undone.
+            </p>
+            <div className="bg-red-50 border border-red-200 rounded p-3">
+              <p className="text-sm text-red-800">
+                <span className="font-semibold">What will happen:</span>
+              </p>
+              <ul className="text-sm text-red-700 mt-2 space-y-1 list-disc list-inside">
+                <li>Employee will be removed from all teams</li>
+                <li>Employee will be unable to log in</li>
+                <li>Historical reports and data will be preserved</li>
+              </ul>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setEmployeeToRemove(null)}
+              disabled={isRemoving}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleRemoveEmployee}
+              disabled={isRemoving}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {isRemoving ? "Removing..." : "Remove Employee"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -1017,3 +1017,38 @@ export async function getTaskReportsForAdmin(
 
   return results;
 }
+
+
+// Remove Employee Function
+export async function removeEmployee(userId: number) {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  try {
+    // 1. Remove user from all teams
+    await db.delete(teamMembers).where(eq(teamMembers.userId, userId));
+
+    // 2. Get all reports by this user and remove team report links
+    const userReports = await db
+      .select({ id: dailyReports.id })
+      .from(dailyReports)
+      .where(eq(dailyReports.userId, userId));
+    
+    if (userReports.length > 0) {
+      const reportIds = userReports.map(r => r.id);
+      await db
+        .delete(teamReports)
+        .where(inArray(teamReports.reportId, reportIds));
+    }
+
+    // 3. Mark user as inactive instead of deleting
+    await db.update(users).set({ isActive: false }).where(eq(users.id, userId));
+
+    return { success: true, message: "Employee removed successfully" };
+  } catch (error) {
+    console.error("[Database] Error removing employee:", error);
+    throw new Error("Failed to remove employee");
+  }
+}

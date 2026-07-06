@@ -350,6 +350,17 @@ export const appRouter = router({
     getEmployeeProfile: publicProcedure
       .input(z.object({ userId: z.number() }))
       .query(({ input }) => db.getOrCreateEmployeeProfile(input.userId)),
+    removeEmployee: adminProcedure
+      .input(z.object({ userId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        if (input.userId === ctx.user.id) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: 'Cannot remove yourself',
+          });
+        }
+        return db.removeEmployee(input.userId);
+      }),
   }),
 
   // Admin Reports Monitor Router
