@@ -464,3 +464,14 @@
 - [x] Verify historical data is preserved
 - [x] Test authorization (only admins can remove)
 - [x] Perform end-to-end testing
+
+
+## Phase 26: Fix Remove Employee Feature Bug
+- [x] Investigate backend removeEmployee procedure
+- [x] Check if database operation is actually executing
+- [x] Verify getAllEmployeeProfiles filters inactive users
+- [x] Test refetch logic in frontend
+- [x] Verify mutation success/error handling
+- [x] End-to-end test of employee removal
+- [x] Verify employee cannot login after removal
+- [x] Verify team membership cleanup

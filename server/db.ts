@@ -290,6 +290,7 @@ export async function getAllEmployeeProfiles() {
   if (!db) return [];
 
   // Join employee profiles with user data to get complete employee information
+  // Filter to only include active users
   const result = await db
     .select({
       id: users.id,
@@ -305,6 +306,7 @@ export async function getAllEmployeeProfiles() {
     })
     .from(users)
     .leftJoin(employeeProfiles, eq(users.id, employeeProfiles.userId))
+    .where(eq(users.isActive, true))
     .orderBy((t) => t.name);
 
   return result;
