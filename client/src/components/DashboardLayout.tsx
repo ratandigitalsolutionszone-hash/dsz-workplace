@@ -239,7 +239,7 @@ function DashboardLayoutContent({
                       {user?.name || "-"}
                     </p>
                     <p className="text-xs text-muted-foreground truncate mt-1.5">
-                      {user?.role === "admin" ? "Administrator" : "Employee"}
+                      {user?.role === "super_admin" ? "Super Admin" : user?.role === "admin" ? "Admin" : user?.role === "team_leader" ? "Team Leader" : "Employee"}
                     </p>
                   </div>
                 </button>
