@@ -177,6 +177,12 @@ export default function ProfilePage() {
                     <Label className="text-[#500151] font-semibold text-sm">Email</Label>
                     <p className="text-lg font-bold text-[#500151] mt-2">{user.email}</p>
                   </div>
+                  <div className="bg-[#f5f0f7] rounded-lg p-4 border border-[#e8dff5]">
+                    <Label className="text-[#500151] font-semibold text-sm">Role</Label>
+                    <p className="text-lg font-bold text-[#500151] mt-2 capitalize">
+                      {user.role?.replace(/_/g, ' ') || 'N/A'}
+                    </p>
+                  </div>
                 </div>
               </div>
             ) : (
