@@ -28,6 +28,7 @@ import {
   InsertTeamMember,
   teamReports,
   InsertTeamReport,
+  roleAuditLog,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -1052,5 +1053,119 @@ export async function removeEmployee(userId: number) {
   } catch (error) {
     console.error("[Database] Error removing employee:", error);
     throw new Error("Failed to remove employee");
+  }
+}
+
+
+// Role Management Functions with Super Admin Protection
+export async function changeUserRole(
+  userId: number,
+  newRole: 'super_admin' | 'admin' | 'team_leader' | 'employee',
+  changedByUserId: number,
+  reason?: string
+) {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  try {
+    // Get the user to check current role
+    const userToUpdate = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+
+    if (!userToUpdate || userToUpdate.length === 0) {
+      throw new Error("User not found");
+    }
+
+    const currentRole = userToUpdate[0].role;
+
+    // Prevent changing Super Admin role
+    if (currentRole === 'super_admin') {
+      throw new Error("Cannot modify Super Admin role. Super Admin accounts are protected and cannot be changed.");
+    }
+
+    // Get the user making the change to verify they have permission
+    const changedByUser = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, changedByUserId))
+      .limit(1);
+
+    if (!changedByUser || changedByUser.length === 0) {
+      throw new Error("User making change not found");
+    }
+
+    // Only Super Admin can change roles
+    if (changedByUser[0].role !== 'super_admin') {
+      throw new Error("Only Super Admin can change user roles");
+    }
+
+    // Update the user role
+    await db.update(users)
+      .set({ role: newRole })
+      .where(eq(users.id, userId));
+
+    // Log the role change in audit log
+    await db.insert(roleAuditLog).values({
+      userId,
+      previousRole: currentRole as any,
+      newRole,
+      changedBy: changedByUserId,
+      reason: reason || null,
+      createdAt: new Date(),
+    });
+
+    return { success: true, message: `Role changed from ${currentRole} to ${newRole}` };
+  } catch (error) {
+    console.error("[Database] Error changing user role:", error);
+    throw error;
+  }
+}
+
+export async function getRoleAuditLog(limit: number = 100) {
+  const db = await getDb();
+  if (!db) return [];
+
+  try {
+    const logs = await db
+      .select({
+        id: roleAuditLog.id,
+        userId: roleAuditLog.userId,
+        previousRole: roleAuditLog.previousRole,
+        newRole: roleAuditLog.newRole,
+        changedBy: roleAuditLog.changedBy,
+        reason: roleAuditLog.reason,
+        createdAt: roleAuditLog.createdAt,
+      })
+      .from(roleAuditLog)
+      .orderBy(desc(roleAuditLog.createdAt))
+      .limit(limit);
+
+    return logs;
+  } catch (error) {
+    console.error("[Database] Error getting role audit log:", error);
+    return [];
+  }
+}
+
+export async function getUserRole(userId: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  try {
+    const user = await db
+      .select({ role: users.role })
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+
+    return user.length > 0 ? user[0].role : null;
+  } catch (error) {
+    console.error("[Database] Error getting user role:", error);
+    return null;
   }
 }

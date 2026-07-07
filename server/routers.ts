@@ -5,8 +5,16 @@ import { publicProcedure, router, protectedProcedure } from "./_core/trpc";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
-  if (ctx.user.role !== 'admin') {
+  if (ctx.user.role !== 'admin' && ctx.user.role !== 'super_admin') {
     throw new TRPCError({ code: 'FORBIDDEN' });
+  }
+  return next({ ctx });
+});
+
+// Super Admin-only procedure
+const superAdminProcedure = protectedProcedure.use(({ ctx, next }) => {
+  if (ctx.user.role !== 'super_admin') {
+    throw new TRPCError({ code: 'FORBIDDEN', message: 'Only Super Admin can perform this action' });
   }
   return next({ ctx });
 });
@@ -710,6 +718,38 @@ export const appRouter = router({
           });
         }
       }),
+  }),
+
+  // Role Management Router (Super Admin only)
+  roles: router({
+    changeUserRole: superAdminProcedure
+      .input(
+        z.object({
+          userId: z.number(),
+          newRole: z.enum(['super_admin', 'admin', 'team_leader', 'employee']),
+          reason: z.string().optional(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        return db.changeUserRole(
+          input.userId,
+          input.newRole,
+          ctx.user.id,
+          input.reason
+        );
+      }),
+
+    getAuditLog: superAdminProcedure
+      .input(
+        z.object({
+          limit: z.number().max(500).default(100),
+        })
+      )
+      .query(({ input }) => db.getRoleAuditLog(input.limit)),
+
+    getUserRole: superAdminProcedure
+      .input(z.object({ userId: z.number() }))
+      .query(({ input }) => db.getUserRole(input.userId)),
   }),
 });
 
