@@ -475,3 +475,22 @@
 - [x] End-to-end test of employee removal
 - [x] Verify employee cannot login after removal
 - [x] Verify team membership cleanup
+
+
+## Phase 27: Role & Permission Management System
+- [ ] Design database schema for roles and permissions
+- [ ] Create roleAuditLog table for tracking role changes
+- [ ] Update users table to support multiple roles
+- [ ] Implement role enum (Super Admin, Admin, Team Leader, Employee)
+- [ ] Create database migrations for new tables
+- [ ] Implement backend role management procedures
+- [ ] Create permission checking middleware
+- [ ] Build role assignment UI in admin panel
+- [ ] Implement Super Admin protection (non-removable)
+- [ ] Add role change audit logging
+- [ ] Create role-based access control for all features
+- [ ] Test Super Admin privileges and restrictions
+- [ ] Test Admin privilege restrictions
+- [ ] Test Team Leader scope limitations
+- [ ] Test Employee permission boundaries
+- [ ] Verify audit log accuracy

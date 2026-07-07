@@ -84,8 +84,8 @@ export async function upsertUser(user: InsertUser): Promise<void> {
       values.role = user.role;
       updateSet.role = user.role;
     } else if (user.openId === ENV.ownerOpenId) {
-      values.role = 'admin';
-      updateSet.role = 'admin';
+      values.role = 'super_admin';
+      updateSet.role = 'super_admin';
     }
 
     if (!values.lastSignedIn) {
@@ -840,7 +840,7 @@ export async function getAllEmployees() {
     })
     .from(users)
     .leftJoin(employeeProfiles, eq(users.id, employeeProfiles.userId))
-    .where(eq(users.role, 'user'));
+    .where(eq(users.role, 'employee'));
 }
 
 

@@ -16,7 +16,7 @@ export const users = mysqlTable("users", {
   name: text("name"),
   email: varchar("email", { length: 320 }),
   loginMethod: varchar("loginMethod", { length: 64 }),
-  role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
+  role: mysqlEnum("role", ["super_admin", "admin", "team_leader", "employee"]).default("employee").notNull(),
   isActive: boolean("is_active").default(true).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
@@ -245,3 +245,21 @@ export const teamReports = mysqlTable("team_reports", {
 
 export type TeamReport = typeof teamReports.$inferSelect;
 export type InsertTeamReport = typeof teamReports.$inferInsert;
+
+// Role Audit Log Table
+export const roleAuditLog = mysqlTable("role_audit_log", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("user_id").notNull(),
+  previousRole: mysqlEnum("previous_role", ["super_admin", "admin", "team_leader", "employee"]).notNull(),
+  newRole: mysqlEnum("new_role", ["super_admin", "admin", "team_leader", "employee"]).notNull(),
+  changedBy: int("changed_by").notNull(),
+  reason: text("reason"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  userIdIdx: index("role_audit_user_id_idx").on(table.userId),
+  changedByIdx: index("role_audit_changed_by_idx").on(table.changedBy),
+  createdAtIdx: index("role_audit_created_at_idx").on(table.createdAt),
+}));
+
+export type RoleAuditLog = typeof roleAuditLog.$inferSelect;
+export type InsertRoleAuditLog = typeof roleAuditLog.$inferInsert;

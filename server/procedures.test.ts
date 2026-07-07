@@ -6,7 +6,7 @@ import type { TrpcContext } from "./_core/context";
 
 type AuthenticatedUser = NonNullable<TrpcContext["user"]>;
 
-function createAuthContext(role: "admin" | "user" = "user"): { ctx: TrpcContext; clearedCookies: any[] } {
+function createAuthContext(role: "super_admin" | "admin" | "team_leader" | "employee" = "employee"): { ctx: TrpcContext; clearedCookies: any[] } {
   const clearedCookies: any[] = [];
 
   const user: AuthenticatedUser = {
@@ -16,6 +16,7 @@ function createAuthContext(role: "admin" | "user" = "user"): { ctx: TrpcContext;
     name: "Test User",
     loginMethod: "manus",
     role,
+    isActive: true,
     createdAt: new Date(),
     updatedAt: new Date(),
     lastSignedIn: new Date(),
@@ -45,7 +46,7 @@ describe("Authentication Procedures", () => {
     const result = await caller.auth.me();
 
     expect(result).toEqual(ctx.user);
-    expect(result?.role).toBe("user");
+    expect(result?.role).toBe("employee");
   });
 
   it("should clear session cookie on logout", async () => {
@@ -120,7 +121,7 @@ describe("Notices Procedures", () => {
   });
 
   it("employee should not be able to create notices", async () => {
-    const { ctx } = createAuthContext("user");
+    const { ctx } = createAuthContext("employee");
     const caller = appRouter.createCaller(ctx);
 
     // Attempting to create notice as non-admin should fail
@@ -197,8 +198,8 @@ describe("Authorization", () => {
     expect(ctx.user.role).toBe("admin");
   });
 
-  it("regular user should have user role", async () => {
-    const { ctx } = createAuthContext("user");
-    expect(ctx.user.role).toBe("user");
+  it("regular employee should have employee role", async () => {
+    const { ctx } = createAuthContext("employee");
+    expect(ctx.user.role).toBe("employee");
   });
 });
