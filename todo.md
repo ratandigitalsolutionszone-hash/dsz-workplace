@@ -494,3 +494,13 @@
 - [ ] Test Team Leader scope limitations
 - [ ] Test Employee permission boundaries
 - [ ] Verify audit log accuracy
+
+
+## Phase 29: Simplified RBAC Implementation - Phase 1 (Backend Role Validation)
+- [ ] Implement backend role validation middleware
+- [ ] Add Super Admin protection (prevent last Super Admin removal)
+- [ ] Implement role-based access control for all procedures
+- [ ] Add audit logging for role changes
+- [ ] Test backend role enforcement
+- [ ] Verify Super Admin protection works
+- [ ] Verify existing features still work with role checks
