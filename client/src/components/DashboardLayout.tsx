@@ -28,7 +28,7 @@ import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
 import { Button } from "./ui/button";
 
-const getMenuItems = (isAdmin: boolean) => {
+const getMenuItems = (role: string | undefined) => {
   const baseItems = [
     { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
     { icon: User, label: "My Profile", path: "/profile" },
@@ -39,7 +39,8 @@ const getMenuItems = (isAdmin: boolean) => {
     { icon: Users, label: "Employee Directory", path: "/directory" },
   ];
 
-  if (isAdmin) {
+  // Show Reports Monitor for Admin and Super Admin only
+  if (role === "admin" || role === "super_admin") {
     baseItems.push({ icon: BarChart3, label: "Reports Monitor", path: "/admin-reports" });
   }
 

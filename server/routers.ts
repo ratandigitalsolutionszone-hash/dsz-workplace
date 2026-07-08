@@ -111,7 +111,7 @@ export const appRouter = router({
         if (!report) {
           throw new TRPCError({ code: "NOT_FOUND", message: "Report not found" });
         }
-        if (report.userId !== ctx.user.id && ctx.user.role !== "admin") {
+        if ((report.userId !== ctx.user.id && ctx.user.role !== "admin" && ctx.user.role !== "super_admin")) {
           throw new TRPCError({ code: "FORBIDDEN", message: "Cannot access this report" });
         }
         return report;
@@ -134,7 +134,7 @@ export const appRouter = router({
           throw new TRPCError({ code: "NOT_FOUND", message: "Report not found" });
         }
         
-        if (report.userId !== ctx.user.id && ctx.user.role !== "admin") {
+        if ((report.userId !== ctx.user.id && ctx.user.role !== "admin" && ctx.user.role !== "super_admin")) {
           throw new TRPCError({ code: "FORBIDDEN", message: "Cannot edit this report" });
         }
 
@@ -165,7 +165,7 @@ export const appRouter = router({
           throw new TRPCError({ code: "NOT_FOUND", message: "Report not found" });
         }
         
-        if (report.userId !== ctx.user.id && ctx.user.role !== "admin") {
+        if ((report.userId !== ctx.user.id && ctx.user.role !== "admin" && ctx.user.role !== "super_admin")) {
           throw new TRPCError({ code: "FORBIDDEN", message: "Cannot delete this report" });
         }
 
@@ -180,7 +180,7 @@ export const appRouter = router({
           throw new TRPCError({ code: "NOT_FOUND", message: "Report not found" });
         }
         
-        if (report.userId !== ctx.user.id && ctx.user.role !== "admin") {
+        if ((report.userId !== ctx.user.id && ctx.user.role !== "admin" && ctx.user.role !== "super_admin")) {
           throw new TRPCError({ code: "FORBIDDEN", message: "Cannot access this report" });
         }
 
@@ -200,7 +200,7 @@ export const appRouter = router({
         })
       )
       .mutation(async ({ ctx, input }) => {
-        if (ctx.user.role !== "admin") {
+        if (ctx.user.role !== "admin" && ctx.user.role !== "super_admin") {
           throw new TRPCError({ code: "FORBIDDEN" });
         }
         return db.createCompanyNotice({ ...input, authorId: ctx.user.id });
@@ -208,7 +208,7 @@ export const appRouter = router({
     delete: protectedProcedure
       .input(z.object({ noticeId: z.number() }))
       .mutation(async ({ ctx, input }) => {
-        if (ctx.user.role !== "admin") {
+        if (ctx.user.role !== "admin" && ctx.user.role !== "super_admin") {
           throw new TRPCError({ code: "FORBIDDEN" });
         }
         return db.deleteCompanyNotice(input.noticeId);
@@ -374,7 +374,7 @@ export const appRouter = router({
   // Admin Reports Monitor Router
   adminReports: router({
     getAllReports: protectedProcedure.query(async ({ ctx }) => {
-      if (ctx.user.role !== "admin") {
+      if (ctx.user.role !== "admin" && ctx.user.role !== "super_admin") {
         throw new TRPCError({ code: "FORBIDDEN" });
       }
       return db.getAllEmployeeReports();
@@ -382,7 +382,7 @@ export const appRouter = router({
     getReportsByEmployee: protectedProcedure
       .input(z.object({ employeeId: z.number() }))
       .query(async ({ ctx, input }) => {
-        if (ctx.user.role !== "admin") {
+        if (ctx.user.role !== "admin" && ctx.user.role !== "super_admin") {
           throw new TRPCError({ code: "FORBIDDEN" });
         }
         return db.getEmployeeReportsByUserId(input.employeeId);
@@ -595,7 +595,7 @@ export const appRouter = router({
       }),
 
     getAll: protectedProcedure.query(async ({ ctx }) => {
-      if (ctx.user.role === 'admin') {
+      if ((ctx.user.role === 'admin' || ctx.user.role === 'super_admin')) {
         return db.getAllTeams();
       }
       return db.getUserTeams(ctx.user.id);
@@ -700,7 +700,7 @@ export const appRouter = router({
         searchQuery: z.string().optional(),
       }))
       .query(async ({ ctx, input }) => {
-        if (ctx.user.role === 'admin') {
+        if ((ctx.user.role === 'admin' || ctx.user.role === 'super_admin')) {
           return db.getTaskReportsForAdmin({
             teamId: input.teamId,
             userId: input.userId,
