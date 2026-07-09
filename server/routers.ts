@@ -610,7 +610,7 @@ export const appRouter = router({
       .query(async ({ ctx, input }) => {
         const team = await db.getTeam(input.teamId);
         if (!team) throw new TRPCError({ code: 'NOT_FOUND' });
-        if (ctx.user.role !== 'admin' && ctx.user.id !== team.teamLeaderId && ctx.user.id !== team.createdBy) {
+        if ((ctx.user.role !== 'admin' && ctx.user.role !== 'super_admin') && ctx.user.id !== team.teamLeaderId && ctx.user.id !== team.createdBy) {
           throw new TRPCError({ code: 'FORBIDDEN' });
         }
         return team;
@@ -621,7 +621,7 @@ export const appRouter = router({
       .query(async ({ ctx, input }) => {
         const team = await db.getTeam(input.teamId);
         if (!team) throw new TRPCError({ code: 'NOT_FOUND' });
-        if (ctx.user.role !== 'admin' && ctx.user.id !== team.teamLeaderId) {
+        if ((ctx.user.role !== 'admin' && ctx.user.role !== 'super_admin') && ctx.user.id !== team.teamLeaderId) {
           throw new TRPCError({ code: 'FORBIDDEN' });
         }
         return db.getTeamMembers(input.teamId);
@@ -636,7 +636,7 @@ export const appRouter = router({
       .query(async ({ ctx, input }) => {
         const team = await db.getTeam(input.teamId);
         if (!team) throw new TRPCError({ code: 'NOT_FOUND' });
-        if (ctx.user.role !== 'admin' && ctx.user.id !== team.teamLeaderId) {
+        if ((ctx.user.role !== 'admin' && ctx.user.role !== 'super_admin') && ctx.user.id !== team.teamLeaderId) {
           throw new TRPCError({ code: 'FORBIDDEN' });
         }
         const allEmployees = await db.getAllEmployees();
@@ -650,7 +650,7 @@ export const appRouter = router({
       .query(async ({ ctx, input }) => {
         const team = await db.getTeam(input.teamId);
         if (!team) throw new TRPCError({ code: 'NOT_FOUND' });
-        if (ctx.user.role !== 'admin' && ctx.user.id !== team.teamLeaderId) {
+        if ((ctx.user.role !== 'admin' && ctx.user.role !== 'super_admin') && ctx.user.id !== team.teamLeaderId) {
           throw new TRPCError({ code: 'FORBIDDEN' });
         }
         return db.getTeamReports(input.teamId, { startDate: input.startDate, endDate: input.endDate, userId: input.userId });
@@ -661,7 +661,7 @@ export const appRouter = router({
       .mutation(async ({ ctx, input }) => {
         const team = await db.getTeam(input.teamId);
         if (!team) throw new TRPCError({ code: 'NOT_FOUND' });
-        if (ctx.user.role !== 'admin' && ctx.user.id !== team.teamLeaderId) {
+        if ((ctx.user.role !== 'admin' && ctx.user.role !== 'super_admin') && ctx.user.id !== team.teamLeaderId) {
           throw new TRPCError({ code: 'FORBIDDEN' });
         }
         return db.addTeamMember(input.teamId, input.userId);
@@ -672,7 +672,7 @@ export const appRouter = router({
       .mutation(async ({ ctx, input }) => {
         const team = await db.getTeam(input.teamId);
         if (!team) throw new TRPCError({ code: 'NOT_FOUND' });
-        if (ctx.user.role !== 'admin' && ctx.user.id !== team.teamLeaderId) {
+        if ((ctx.user.role !== 'admin' && ctx.user.role !== 'super_admin') && ctx.user.id !== team.teamLeaderId) {
           throw new TRPCError({ code: 'FORBIDDEN' });
         }
         return db.removeTeamMember(input.teamId, input.userId);
@@ -685,7 +685,7 @@ export const appRouter = router({
         if (!team) throw new TRPCError({ code: 'NOT_FOUND' });
         const members = await db.getUserTeamMemberships(ctx.user.id);
         const isMember = members.some(m => m.teamId === input.teamId);
-        if (ctx.user.role !== 'admin' && !isMember && ctx.user.id !== team.teamLeaderId) {
+        if ((ctx.user.role !== 'admin' && ctx.user.role !== 'super_admin') && !isMember && ctx.user.id !== team.teamLeaderId) {
           throw new TRPCError({ code: 'FORBIDDEN' });
         }
         return db.addTeamReport(input.teamId, input.reportId);

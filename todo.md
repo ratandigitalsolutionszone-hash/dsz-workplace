@@ -517,3 +517,14 @@
 - [ ] E2E test: Admin permissions
 - [ ] E2E test: Team Leader permissions
 - [ ] E2E test: Employee permissions
+
+## RBAC Permission Fixes Summary
+
+- [x] Fixed adminReports.getAllReports to allow Super Admin
+- [x] Fixed adminReports.getReportsByEmployee to allow Super Admin
+- [x] Fixed daily reports procedures (get, update, delete, getEditHistory)
+- [x] Fixed company notices procedures (delete, update)
+- [x] Fixed team management procedures (getAll, getTaskReports)
+- [x] Fixed team-specific procedures (getTeam, getMembers, etc.)
+- [x] All permission checks now include both 'admin' AND 'super_admin' roles
+- [x] TypeScript compilation: No errors
