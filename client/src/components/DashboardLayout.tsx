@@ -22,7 +22,7 @@ import {
 import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { useIsMobile } from "@/hooks/useMobile";
-import { LayoutDashboard, LogOut, PanelLeft, User, FileText, Bell, Calendar, Briefcase, Users, BarChart3 } from "lucide-react";
+import { LayoutDashboard, LogOut, PanelLeft, User, FileText, Bell, Calendar, Briefcase, Users, BarChart3, Lock } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
@@ -42,6 +42,11 @@ const getMenuItems = (role: string | undefined) => {
   // Show Reports Monitor for Admin and Super Admin only
   if (role === "admin" || role === "super_admin") {
     baseItems.push({ icon: BarChart3, label: "Reports Monitor", path: "/admin-reports" });
+  }
+
+  // Show Role Permissions for Super Admin only
+  if (role === "super_admin") {
+    baseItems.push({ icon: Lock, label: "Role Permissions", path: "/role-permissions" });
   }
 
   return baseItems;
