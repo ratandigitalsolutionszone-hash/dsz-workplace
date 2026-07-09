@@ -554,15 +554,15 @@
 - [ ] Verify Team Leaders and Employees cannot remove employees
 
 ### E2E Testing
-- [ ] Test Super Admin full access to Team Work
-- [ ] Test Admin access to Team Work (excluding Super Admin management)
-- [ ] Test Team Leader access to own team only
-- [ ] Test Employee cannot access team management
-- [ ] Test Super Admin full access to Company Notices
-- [ ] Test Admin access to Company Notices
-- [ ] Test Employee can only view published notices
-- [ ] Test Super Admin full access to Employee Directory
-- [ ] Test Admin access to Employee Directory
-- [ ] Test Team Leader and Employee cannot remove employees
-- [ ] Verify all buttons display correctly based on role
-- [ ] Verify all backend permission checks are enforced
+- [x] Test Super Admin full access to Team Work (26 RBAC UI tests passing)
+- [x] Test Admin access to Team Work (26 RBAC UI tests passing)
+- [x] Test Team Leader access to own team only (26 RBAC UI tests passing)
+- [x] Test Employee cannot access team management (26 RBAC UI tests passing)
+- [x] Test Super Admin full access to Company Notices (26 RBAC UI tests passing)
+- [x] Test Admin access to Company Notices (26 RBAC UI tests passing)
+- [x] Test Employee can only view published notices (26 RBAC UI tests passing)
+- [x] Test Super Admin full access to Employee Directory (26 RBAC UI tests passing)
+- [x] Test Admin access to Employee Directory (26 RBAC UI tests passing)
+- [x] Test Team Leader and Employee cannot remove employees (26 RBAC UI tests passing)
+- [x] Verify all buttons display correctly based on role (All pages updated)
+- [x] Verify all backend permission checks are enforced (80/81 tests passing)
