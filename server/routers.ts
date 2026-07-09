@@ -751,6 +751,40 @@ export const appRouter = router({
       .input(z.object({ userId: z.number() }))
       .query(({ input }) => db.getUserRole(input.userId)),
   }),
+
+  permissions: router({
+    getAll: superAdminProcedure.query(() => db.getAllPermissions()),
+
+    getRolePermissions: superAdminProcedure
+      .input(z.object({ role: z.string() }))
+      .query(({ input }) => db.getRolePermissions(input.role)),
+
+    updateRolePermission: superAdminProcedure
+      .input(
+        z.object({
+          role: z.string(),
+          permissionId: z.number(),
+          granted: z.boolean(),
+          reason: z.string().optional(),
+        })
+      )
+      .mutation(({ input, ctx }) => db.updateRolePermission({
+        role: input.role,
+        permissionId: input.permissionId,
+        granted: input.granted,
+        changedBy: ctx.user.id,
+        reason: input.reason,
+      })),
+
+    getAuditLog: superAdminProcedure
+      .input(
+        z.object({
+          limit: z.number().max(500).default(100),
+          role: z.string().optional(),
+        })
+      )
+      .query(({ input }) => db.getPermissionAuditLog(input.limit, input.role)),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

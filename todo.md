@@ -566,3 +566,59 @@
 - [x] Test Team Leader and Employee cannot remove employees (26 RBAC UI tests passing)
 - [x] Verify all buttons display correctly based on role (All pages updated)
 - [x] Verify all backend permission checks are enforced (80/81 tests passing)
+
+
+## Phase 3: Role & Permission Management System
+
+### Database Schema
+- [ ] Create `permissions` table (id, module, action, description)
+- [ ] Create `role_permissions` table (roleId, permissionId, granted)
+- [ ] Create `permission_audit_log` table (userId, affectedRoleId, permissionId, previousValue, newValue, timestamp)
+- [ ] Add migration SQL for new tables
+- [ ] Verify schema relationships and constraints
+
+### Backend Implementation
+- [ ] Create permission constants and types (modules, actions)
+- [ ] Implement permission checking middleware
+- [ ] Create `permissions.getAll` procedure
+- [ ] Create `permissions.getRolePermissions` procedure
+- [ ] Create `permissions.updateRolePermission` procedure
+- [ ] Create `permissions.getAuditLog` procedure
+- [ ] Implement Super Admin protection (prevent last Super Admin removal)
+- [ ] Add permission validation to all protected procedures
+- [ ] Create permission helper functions
+
+### Frontend UI - Permission Management Page
+- [ ] Create `RolePermissionsPage.tsx` component
+- [ ] Design permission matrix UI (roles x permissions)
+- [ ] Implement permission toggle functionality
+- [ ] Add audit log viewer
+- [ ] Implement loading and error states
+- [ ] Add confirmation dialogs for permission changes
+- [ ] Implement real-time permission updates
+
+### Dynamic Permission-Based UI
+- [ ] Create permission context provider
+- [ ] Implement `usePermission` hook for frontend
+- [ ] Update menu visibility based on permissions
+- [ ] Update page visibility based on permissions
+- [ ] Update button visibility based on permissions
+- [ ] Add permission checks to all protected features
+
+### Testing
+- [ ] Create permission system tests
+- [ ] Test permission matrix functionality
+- [ ] Test audit log recording
+- [ ] Test Super Admin protection
+- [ ] Test permission validation on backend
+- [ ] Test dynamic UI rendering based on permissions
+- [ ] Test permission inheritance and hierarchy
+
+### E2E Testing & Verification
+- [ ] Test Super Admin can manage all permissions
+- [ ] Test Admin cannot access permission management
+- [ ] Test permission changes apply immediately
+- [ ] Test audit log records all changes
+- [ ] Test Super Admin protection works
+- [ ] Test dynamic UI updates based on permissions
+- [ ] Verify no regressions in existing features

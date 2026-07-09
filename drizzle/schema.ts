@@ -263,3 +263,53 @@ export const roleAuditLog = mysqlTable("role_audit_log", {
 
 export type RoleAuditLog = typeof roleAuditLog.$inferSelect;
 export type InsertRoleAuditLog = typeof roleAuditLog.$inferInsert;
+
+// Permissions Table
+export const permissions = mysqlTable("permissions", {
+  id: int("id").autoincrement().primaryKey(),
+  module: varchar("module", { length: 100 }).notNull(), // e.g., "team_work", "company_notices", "employee_directory"
+  action: varchar("action", { length: 100 }).notNull(), // e.g., "create", "edit", "delete", "view"
+  description: text("description"), // Human-readable description
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  moduleActionUniqueIdx: index("permission_module_action_unique").on(table.module, table.action),
+}));
+
+export type Permission = typeof permissions.$inferSelect;
+export type InsertPermission = typeof permissions.$inferInsert;
+
+// Role Permissions Table (maps roles to permissions)
+export const rolePermissions = mysqlTable("role_permissions", {
+  id: int("id").autoincrement().primaryKey(),
+  role: mysqlEnum("role", ["super_admin", "admin", "team_leader", "employee"]).notNull(),
+  permissionId: int("permission_id").notNull(),
+  granted: boolean("granted").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  rolePermissionUniqueIdx: index("role_permission_unique").on(table.role, table.permissionId),
+}));
+
+export type RolePermission = typeof rolePermissions.$inferSelect;
+export type InsertRolePermission = typeof rolePermissions.$inferInsert;
+
+// Permission Audit Log Table
+export const permissionAuditLog = mysqlTable("permission_audit_log", {
+  id: int("id").autoincrement().primaryKey(),
+  changedBy: int("changed_by").notNull(), // User who made the change
+  affectedRole: mysqlEnum("affected_role", ["super_admin", "admin", "team_leader", "employee"]).notNull(),
+  permissionId: int("permission_id").notNull(),
+  previousValue: boolean("previous_value").notNull(),
+  newValue: boolean("new_value").notNull(),
+  reason: text("reason"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  changedByIdx: index("permission_audit_changed_by_idx").on(table.changedBy),
+  affectedRoleIdx: index("permission_audit_affected_role_idx").on(table.affectedRole),
+  createdAtIdx: index("permission_audit_created_at_idx").on(table.createdAt),
+}));
+
+export type PermissionAuditLog = typeof permissionAuditLog.$inferSelect;
+export type InsertPermissionAuditLog = typeof permissionAuditLog.$inferInsert;

@@ -29,6 +29,9 @@ import {
   teamReports,
   InsertTeamReport,
   roleAuditLog,
+  permissions,
+  rolePermissions,
+  permissionAuditLog,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -1167,5 +1170,150 @@ export async function getUserRole(userId: number) {
   } catch (error) {
     console.error("[Database] Error getting user role:", error);
     return null;
+  }
+}
+
+
+// Permission Management Functions
+export async function getAllPermissions() {
+  const db = await getDb();
+  if (!db) return [];
+  try {
+    const perms = await db
+      .select()
+      .from(permissions)
+      .where(eq(permissions.isActive, true))
+      .orderBy(permissions.module, permissions.action);
+    return perms;
+  } catch (error) {
+    console.error("[Database] Error getting all permissions:", error);
+    return [];
+  }
+}
+
+export async function getRolePermissions(role: string) {
+  const db = await getDb();
+  if (!db) return [];
+  try {
+    const perms = await db
+      .select({
+        id: permissions.id,
+        module: permissions.module,
+        action: permissions.action,
+        description: permissions.description,
+        granted: rolePermissions.granted,
+      })
+      .from(permissions)
+      .leftJoin(
+        rolePermissions,
+        and(
+          eq(rolePermissions.permissionId, permissions.id),
+          sql`${rolePermissions.role} = ${role}`
+        )
+      )
+      .where(eq(permissions.isActive, true))
+      .orderBy(permissions.module, permissions.action);
+    return perms;
+  } catch (error) {
+    console.error("[Database] Error getting role permissions:", error);
+    return [];
+  }
+}
+
+export async function updateRolePermission(input: {
+  role: string;
+  permissionId: number;
+  granted: boolean;
+  changedBy: number;
+  reason?: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  try {
+    // Get the previous value
+    const existing = await db
+      .select({ granted: rolePermissions.granted })
+      .from(rolePermissions)
+      .where(
+        and(
+          sql`${rolePermissions.role} = ${input.role}`,
+          eq(rolePermissions.permissionId, input.permissionId)
+        )
+      )
+      .limit(1);
+
+    const previousValue = existing.length > 0 ? existing[0].granted : false;
+
+    // Update or insert the role permission
+    if (existing.length > 0) {
+      await db
+        .update(rolePermissions)
+        .set({
+          granted: input.granted,
+          updatedAt: new Date(),
+        })
+        .where(
+          and(
+            sql`${rolePermissions.role} = ${input.role}`,
+            eq(rolePermissions.permissionId, input.permissionId)
+          )
+        );
+    } else {
+      await db.insert(rolePermissions).values({
+        role: input.role as any,
+        permissionId: input.permissionId,
+        granted: input.granted,
+      });
+    }
+
+    // Log the change in audit log
+    await db.insert(permissionAuditLog).values({
+      changedBy: input.changedBy,
+      affectedRole: input.role as any,
+      permissionId: input.permissionId,
+      previousValue: previousValue,
+      newValue: input.granted,
+      reason: input.reason,
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error("[Database] Error updating role permission:", error);
+    throw error;
+  }
+}
+
+export async function getPermissionAuditLog(limit: number = 100, role?: string) {
+  const db = await getDb();
+  if (!db) return [];
+  try {
+    const logs = await db
+      .select({
+        id: permissionAuditLog.id,
+        changedBy: permissionAuditLog.changedBy,
+        affectedRole: permissionAuditLog.affectedRole,
+        permissionId: permissionAuditLog.permissionId,
+        module: permissions.module,
+        action: permissions.action,
+        previousValue: permissionAuditLog.previousValue,
+        newValue: permissionAuditLog.newValue,
+        reason: permissionAuditLog.reason,
+        createdAt: permissionAuditLog.createdAt,
+      })
+      .from(permissionAuditLog)
+      .innerJoin(permissions, eq(permissions.id, permissionAuditLog.permissionId))
+      .orderBy(desc(permissionAuditLog.createdAt))
+      .limit(limit);
+
+    // Filter by role in application code if needed
+    if (role) {
+      return logs.filter(log => log.affectedRole === role);
+    }
+
+    return logs;
+  } catch (error) {
+    console.error("[Database] Error getting permission audit log:", error);
+    return [];
   }
 }
