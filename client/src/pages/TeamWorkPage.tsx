@@ -81,7 +81,7 @@ export default function TeamWorkPage() {
 
   const selectedTeam = teams?.find(t => t.id === selectedTeamId);
   const isTeamLeader = selectedTeam && user && selectedTeam.teamLeaderId === user.id;
-  const isAdmin = user?.role === 'admin';
+  const isAdmin = user?.role === 'admin' || user?.role === 'super_admin';
 
   return (
     <div className="space-y-6">

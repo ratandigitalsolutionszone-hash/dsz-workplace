@@ -528,3 +528,41 @@
 - [x] Fixed team-specific procedures (getTeam, getMembers, etc.)
 - [x] All permission checks now include both 'admin' AND 'super_admin' roles
 - [x] TypeScript compilation: No errors
+
+
+## RBAC UI/UX Issues - Phase 2
+
+### Issue 1: Team Work Section
+- [x] Add "Create Team" button for Super Admin and Admin (Fixed: TeamWorkPage.tsx line 84)
+- [x] Add "Add Team Member" functionality for Super Admin and Admin (Fixed: TeamWorkPage.tsx line 84)
+- [x] Add "Remove Team Member" functionality for Super Admin and Admin (Fixed: TeamWorkPage.tsx line 84)
+- [ ] Verify Team Leaders can only manage their assigned team
+- [ ] Verify Employees cannot access team management
+
+### Issue 2: Company Notice Section
+- [x] Add "Create Notice" button for Super Admin and Admin (Fixed: NoticesPage.tsx line 128)
+- [x] Add "Edit Notice" functionality for Super Admin and Admin (Fixed: NoticesPage.tsx line 128)
+- [x] Add "Publish Notice" functionality for Super Admin and Admin (Fixed: NoticesPage.tsx line 128)
+- [x] Add "Delete Notice" functionality for Super Admin and Admin (Fixed: NoticesPage.tsx line 128)
+- [ ] Verify Employees can only view published notices
+
+### Issue 3: Employee Directory
+- [x] Add "Remove Employee" option for Super Admin (Fixed: DirectoryPage.tsx line 181)
+- [x] Add "Remove Employee" option for Admin (except Super Admin accounts) (Fixed: DirectoryPage.tsx line 181)
+- [ ] Add "Add Employee" button for Super Admin and Admin
+- [ ] Add "Edit Employee" functionality for Super Admin and Admin
+- [ ] Verify Team Leaders and Employees cannot remove employees
+
+### E2E Testing
+- [ ] Test Super Admin full access to Team Work
+- [ ] Test Admin access to Team Work (excluding Super Admin management)
+- [ ] Test Team Leader access to own team only
+- [ ] Test Employee cannot access team management
+- [ ] Test Super Admin full access to Company Notices
+- [ ] Test Admin access to Company Notices
+- [ ] Test Employee can only view published notices
+- [ ] Test Super Admin full access to Employee Directory
+- [ ] Test Admin access to Employee Directory
+- [ ] Test Team Leader and Employee cannot remove employees
+- [ ] Verify all buttons display correctly based on role
+- [ ] Verify all backend permission checks are enforced

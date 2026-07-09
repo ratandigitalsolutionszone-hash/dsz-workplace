@@ -125,7 +125,7 @@ export default function NoticesPage() {
     return null;
   }
 
-  const isAdmin = user.role === "admin";
+  const isAdmin = user.role === "admin" || user.role === "super_admin";
   const sortedNotices = notices ? [...notices].reverse() : [];
 
   // Assign notice types based on keywords in title/content

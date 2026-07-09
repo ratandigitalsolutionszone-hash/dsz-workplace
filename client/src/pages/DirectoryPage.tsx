@@ -178,7 +178,7 @@ function DirectoryPageContent() {
                 </div>
 
                 {/* Admin Actions */}
-                {user?.role === 'admin' && (
+                {(user?.role === 'admin' || user?.role === 'super_admin') && (
                   <div className="pt-3 border-t border-blue-200">
                     <Button
                       variant="ghost"
