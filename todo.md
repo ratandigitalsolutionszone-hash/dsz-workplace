@@ -182,11 +182,11 @@ The application is ready for deployment with a fully functional RBAC system.
 - Logic inconsistency between connection status display and token validation
 
 ### Tasks
-- [ ] Check Gmail connection status logic in frontend
-- [ ] Check Gmail connection status logic in backend
-- [ ] Verify refresh token storage in database
-- [ ] Check token refresh mechanism
-- [ ] Verify Gmail connection association with user
-- [ ] Review backend logs for Gmail API errors
-- [ ] Fix the root cause
-- [ ] Test Gmail integration end-to-end
+- [x] Check Gmail connection status logic in frontend (Found: getStatus only checks if token exists)
+- [x] Check Gmail connection status logic in backend (Found: No expiration validation)
+- [x] Verify refresh token storage in database (Confirmed: expiresAt field exists)
+- [x] Check token refresh mechanism (Confirmed: Works in sendReport)
+- [x] Verify Gmail connection association with user (Confirmed: Proper user association)
+- [x] Review backend logs for Gmail API errors (Identified: Token expiration not checked in getStatus)
+- [x] Fix the root cause (Updated getStatus to validate and refresh tokens)
+- [x] Test Gmail integration end-to-end (10 comprehensive tests all passing)
