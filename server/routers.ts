@@ -752,6 +752,32 @@ export const appRouter = router({
       .query(({ input }) => db.getUserRole(input.userId)),
   }),
 
+  users: router({
+    changeRole: protectedProcedure
+      .input(
+        z.object({
+          userId: z.number(),
+          newRole: z.enum(["super_admin", "admin", "team_leader", "employee"]),
+        })
+      )
+      .mutation(({ input, ctx }) => db.changeUserRole(
+        input.userId,
+        input.newRole as 'super_admin' | 'admin' | 'team_leader' | 'employee',
+        ctx.user.id
+      )),
+
+    getAvailableRoles: protectedProcedure
+      .query(({ ctx }) => {
+        if (ctx.user.role === "super_admin") {
+          return ["super_admin", "admin", "team_leader", "employee"];
+        }
+        if (ctx.user.role === "admin") {
+          return ["team_leader", "employee"];
+        }
+        return [];
+      }),
+  }),
+
   permissions: router({
     getAll: superAdminProcedure.query(() => db.getAllPermissions()),
 

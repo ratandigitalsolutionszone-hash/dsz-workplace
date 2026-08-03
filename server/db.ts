@@ -1086,11 +1086,6 @@ export async function changeUserRole(
 
     const currentRole = userToUpdate[0].role;
 
-    // Prevent changing Super Admin role
-    if (currentRole === 'super_admin') {
-      throw new Error("Cannot modify Super Admin role. Super Admin accounts are protected and cannot be changed.");
-    }
-
     // Get the user making the change to verify they have permission
     const changedByUser = await db
       .select()
@@ -1102,9 +1097,34 @@ export async function changeUserRole(
       throw new Error("User making change not found");
     }
 
-    // Only Super Admin can change roles
-    if (changedByUser[0].role !== 'super_admin') {
-      throw new Error("Only Super Admin can change user roles");
+    const changerRole = changedByUser[0].role;
+
+    // Permission validation based on changer's role
+    if (changerRole === 'admin') {
+      // Admin cannot change Super Admin or Admin roles
+      if (currentRole === 'super_admin' || currentRole === 'admin') {
+        throw new Error("Admin cannot modify Super Admin or Admin accounts");
+      }
+      // Admin can only assign Employee and Team Leader
+      if (newRole !== 'employee' && newRole !== 'team_leader') {
+        throw new Error("Admin can only assign Employee or Team Leader roles");
+      }
+    } else if (changerRole !== 'super_admin') {
+      // Only Super Admin and Admin can change roles
+      throw new Error("You do not have permission to change user roles");
+    }
+
+    // Prevent removing the last Super Admin
+    if (currentRole === 'super_admin' && newRole !== 'super_admin') {
+      const superAdminCount = await db
+        .select()
+        .from(users)
+        .where(eq(users.role, 'super_admin'))
+        .limit(2);
+
+      if (superAdminCount.length === 1) {
+        throw new Error("Cannot remove the last Super Admin from the system");
+      }
     }
 
     // Update the user role
@@ -1317,3 +1337,5 @@ export async function getPermissionAuditLog(limit: number = 100, role?: string) 
     return [];
   }
 }
+
+

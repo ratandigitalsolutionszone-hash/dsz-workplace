@@ -10,6 +10,8 @@ import { Mail, MapPin, Briefcase, Users, Trash2 } from "lucide-react";
 import { useState, useMemo } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { toast } from "sonner";
+import { ChangeRoleDialog } from "@/components/ChangeRoleDialog";
+import { Shield } from "lucide-react";
 
 function DirectoryPageContent() {
   const { user } = useAuth();
@@ -17,6 +19,8 @@ function DirectoryPageContent() {
   const [selectedDepartment, setSelectedDepartment] = useState<string | null>(null);
   const [employeeToRemove, setEmployeeToRemove] = useState<any | null>(null);
   const [isRemoving, setIsRemoving] = useState(false);
+  const [employeeToChangeRole, setEmployeeToChangeRole] = useState<any | null>(null);
+  const [changeRoleDialogOpen, setChangeRoleDialogOpen] = useState(false);
 
   const { data: employees, isLoading, refetch } = trpc.directory.getAllEmployees.useQuery();
   const removeEmployeeMutation = trpc.directory.removeEmployee.useMutation({
@@ -179,7 +183,19 @@ function DirectoryPageContent() {
 
                 {/* Admin Actions */}
                 {(user?.role === 'admin' || user?.role === 'super_admin') && (
-                  <div className="pt-3 border-t border-blue-200">
+                  <div className="pt-3 border-t border-blue-200 space-y-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setEmployeeToChangeRole(emp);
+                        setChangeRoleDialogOpen(true);
+                      }}
+                      className="w-full text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                    >
+                      <Shield className="w-4 h-4 mr-2" />
+                      Change Role
+                    </Button>
                     <Button
                       variant="ghost"
                       size="sm"
@@ -213,6 +229,18 @@ function DirectoryPageContent() {
             {selectedDepartment && <span className="text-gray-600"> in {selectedDepartment}</span>}
           </p>
         </Card>
+      )}
+
+      {/* Change Role Dialog */}
+      {employeeToChangeRole && (
+        <ChangeRoleDialog
+          open={changeRoleDialogOpen}
+          onOpenChange={setChangeRoleDialogOpen}
+          userId={employeeToChangeRole.id}
+          currentRole={employeeToChangeRole.role}
+          userName={employeeToChangeRole.name}
+          onSuccess={() => refetch()}
+        />
       )}
 
       {/* Remove Employee Confirmation Dialog */}
