@@ -141,3 +141,26 @@ All phases of the Role & Permission Management system have been successfully imp
 - 99.1% test coverage
 
 The application is ready for deployment with a fully functional RBAC system.
+
+
+## Bug Fix: Team Work Report Filtering
+
+### Issue
+- Team Work View Reports shows ALL reports from ALL employees
+- Should only show reports from team members
+- Data isolation issue affecting multiple teams
+
+### Requirements
+- Filter reports by team membership on backend
+- Super Admin and Admin can view any team's reports
+- Team Leader can only view their own team's reports
+- Employee cannot access report viewer
+- Enforce filtering on both backend and frontend
+
+### Tasks
+- [ ] Check current getTeamReports procedure implementation
+- [ ] Update backend to join with teamMembers table
+- [ ] Add role-based permission checks
+- [ ] Filter frontend display by team membership
+- [ ] Test with multiple teams
+- [ ] Verify role-based access control

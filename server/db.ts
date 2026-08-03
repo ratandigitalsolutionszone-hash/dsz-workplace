@@ -784,7 +784,7 @@ export async function getTeamReports(teamId: number, filters?: { startDate?: Dat
   const db = await getDb();
   if (!db) return [];
 
-  const conditions = [eq(teamReports.teamId, teamId)];
+  const conditions = [eq(teamMembers.teamId, teamId)];
 
   if (filters?.startDate) {
     conditions.push(gte(dailyReports.reportDate, filters.startDate));
@@ -798,10 +798,10 @@ export async function getTeamReports(teamId: number, filters?: { startDate?: Dat
 
   return db
     .select({
-      id: teamReports.id,
-      teamId: teamReports.teamId,
-      reportId: teamReports.reportId,
-      submittedAt: teamReports.submittedAt,
+      id: dailyReports.id,
+      teamId: sql`${teamId}`,
+      reportId: dailyReports.id,
+      submittedAt: dailyReports.createdAt,
       reportDate: dailyReports.reportDate,
       tasksCompleted: dailyReports.tasksCompleted,
       hoursWorked: dailyReports.hoursWorked,
@@ -810,11 +810,12 @@ export async function getTeamReports(teamId: number, filters?: { startDate?: Dat
       userName: users.name,
       userEmail: users.email,
     })
-    .from(teamReports)
-    .innerJoin(dailyReports, eq(teamReports.reportId, dailyReports.id))
-    .innerJoin(users, eq(dailyReports.userId, users.id))
+    .from(teamMembers)
+    .innerJoin(users, eq(teamMembers.userId, users.id))
+    .innerJoin(dailyReports, eq(users.id, dailyReports.userId))
     .where(and(...conditions));
 }
+
 
 export async function getTeamLeaderTeams(userId: number) {
   const db = await getDb();
