@@ -172,3 +172,21 @@ The application is ready for deployment with a fully functional RBAC system.
   - Reports filtered by team membership
   - Role-based access control verified
   - Ready for end-to-end testing
+
+
+## Gmail Integration Bug Investigation
+
+### Issue
+- Frontend shows Gmail as "Connected" (green status)
+- Backend rejects email sends with "Gmail connection expired" error
+- Logic inconsistency between connection status display and token validation
+
+### Tasks
+- [ ] Check Gmail connection status logic in frontend
+- [ ] Check Gmail connection status logic in backend
+- [ ] Verify refresh token storage in database
+- [ ] Check token refresh mechanism
+- [ ] Verify Gmail connection association with user
+- [ ] Review backend logs for Gmail API errors
+- [ ] Fix the root cause
+- [ ] Test Gmail integration end-to-end

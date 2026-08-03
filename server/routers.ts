@@ -397,9 +397,53 @@ export const appRouter = router({
     }),
     getStatus: protectedProcedure.query(async ({ ctx }) => {
       const token = await db.getGmailToken(ctx.user.id);
+      if (!token) {
+        return {
+          connected: false,
+          email: null,
+        };
+      }
+
+      // Check if token is expired and needs refresh
+      if (token.expiresAt && new Date() > token.expiresAt) {
+        if (token.refreshToken) {
+          try {
+            const { refreshAccessToken } = require("./_core/gmail");
+            const refreshResult = await refreshAccessToken(token.refreshToken);
+            if (refreshResult) {
+              // Update the token in database
+              await db.updateGmailAccessToken(ctx.user.id, refreshResult.accessToken, refreshResult.expiresAt);
+              return {
+                connected: true,
+                email: token.gmailEmail,
+              };
+            } else {
+              // Token refresh failed - connection is invalid
+              return {
+                connected: false,
+                email: null,
+              };
+            }
+          } catch (error) {
+            console.error("[Gmail] Error refreshing token in getStatus:", error);
+            return {
+              connected: false,
+              email: null,
+            };
+          }
+        } else {
+          // No refresh token available - connection is invalid
+          return {
+            connected: false,
+            email: null,
+          };
+        }
+      }
+
+      // Token is valid
       return {
-        connected: !!token,
-        email: token?.gmailEmail || null,
+        connected: true,
+        email: token.gmailEmail,
       };
     }),
     disconnect: protectedProcedure.mutation(async ({ ctx }) => {
