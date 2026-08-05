@@ -112,3 +112,42 @@ temp/
 # Manus version file (auto-generated, not part of source)
 client/public/__manus__/version.json
 .project-config.json
+
+# Sensitive credentials and secrets
+.env*
+!.env.example
+*.key
+*.pem
+*.secret
+*.credentials
+
+# API Keys and tokens (in case accidentally added)
+**/secrets.json
+**/config.secrets.json
+
+# Manus logs and temporary files
+.manus-logs/
+.manus/
+
+# IDE specific files
+.vscode/settings.json
+.vscode/launch.json
+.vscode/extensions.json
+
+# OS files
+.env.local.backup
+.env.*.backup
+
+# Build and dist
+.turbo/
+.vercel/
+.netlify/
+
+# Testing
+.coverage/
+.nyc_output/
+heap-snapshots/
+
+# Database credentials
+*.sql.backup
+*.sql.dump
