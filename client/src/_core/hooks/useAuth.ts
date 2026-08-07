@@ -11,6 +11,14 @@ type UseAuthOptions = {
 export function useAuth(options?: UseAuthOptions) {
   const { redirectOnUnauthenticated = false, redirectPath = getLoginUrl() } =
     options ?? {};
+  
+  // Warn if OAuth is not configured but redirect is requested
+  if (redirectOnUnauthenticated && redirectPath === "/login-disabled") {
+    console.warn(
+      "[Auth] Redirect on unauthenticated is enabled but OAuth is not configured. " +
+      "Please set VITE_APP_ID and VITE_OAUTH_PORTAL_URL environment variables."
+    );
+  }
   const utils = trpc.useUtils();
 
   const meQuery = trpc.auth.me.useQuery(undefined, {

@@ -22,10 +22,21 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    <script
-      defer
-      src="%VITE_ANALYTICS_ENDPOINT%/umami"
-      data-website-id="%VITE_ANALYTICS_WEBSITE_ID%"></script>
+    <!-- Analytics: Only load if both VITE_ANALYTICS_ENDPOINT and VITE_ANALYTICS_WEBSITE_ID are configured -->
+    <script>
+      (function() {
+        const endpoint = '%VITE_ANALYTICS_ENDPOINT%';
+        const websiteId = '%VITE_ANALYTICS_WEBSITE_ID%';
+        // Only load analytics if both variables are configured (not empty placeholders)
+        if (endpoint && websiteId && !endpoint.startsWith('%') && !websiteId.startsWith('%')) {
+          const script = document.createElement('script');
+          script.defer = true;
+          script.src = endpoint + '/umami';
+          script.setAttribute('data-website-id', websiteId);
+          document.body.appendChild(script);
+        }
+      })();
+    </script>
   </body>
 
 </html>
